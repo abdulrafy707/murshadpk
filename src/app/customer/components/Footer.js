@@ -43,7 +43,7 @@ const Footer = () => {
             </a>
           </Link>
           <p className="text-[15px] font-[400] md:mr-10 sm:mr-10 lg:mr-10 xl:mr-10 text-justify">
-            Store2u is your ultimate destination for top-quality products, seamless shopping experience, and unmatched customer service. Discover a wide range of items to meet all your needs.
+            Murshapk is your ultimate destination for top-quality products, seamless shopping experience, and unmatched customer service. Discover a wide range of items to meet all your needs.
           </p>
         </div>
         <div className="flex flex-col gap-2 col-span-2">
@@ -90,8 +90,8 @@ const Footer = () => {
         <div className="flex flex-col gap-2 col-span-2">
           <p className="text-[20px] font-[600]">Support</p>
           <p className="text-[15px] font-[400]">Email: munawar.vu@gmail.com</p>
-          <p className="text-[15px] font-[400]">Phone: +92310356111</p>
-          <p className="text-[15px] font-[400]">Address: PO Chak No. 356/jb Khalsa Abad, Tehseil Gojra, District Toba Tek Singh, Punjab, Pakistan</p>
+          <p className="text-[15px] font-[400]">Phone: 03137743008</p>
+          <p className="text-[15px] font-[400]">Address: Near union council kandhanwala  P/O Mandi Bahauddin , Tehsil and Distr, -, -, Pakistan</p>
         </div>
       </div>
 

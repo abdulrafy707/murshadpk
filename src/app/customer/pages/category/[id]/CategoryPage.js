@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 const fetchSubcategoriesByCategoryId = async (categoryId) => {
   try {
     const response = await axios.get(`/api/subcategories/${categoryId}`);
+    console.log("response",response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching subcategories:', error);
@@ -22,19 +23,21 @@ const CategoryPage = ({ categoryData }) => {
 
   useEffect(() => {
     const fetchSubcategories = async () => {
-      const data = await fetchSubcategoriesByCategoryId(id);
-      setSubcategories(data);
+      const response = await fetchSubcategoriesByCategoryId(id);
+      console.log("Fetched data", response);
+      setSubcategories(Array.isArray(response.data) ? response.data : []);  // Extracting the actual data array
+      console.log("Subcategories state:", subcategories); // Check if state is updated
     };
-
+  
     if (id) {
       fetchSubcategories();
     }
-
-    // Log the meta fields in the console
+  
     console.log('Meta Title:', categoryData.meta_title || 'No Meta Title');
     console.log('Meta Description:', categoryData.meta_description || 'No Meta Description');
     console.log('Meta Keywords:', categoryData.meta_keywords || 'No Meta Keywords');
   }, [id, categoryData]);
+  
 
   const handleSubcategoryClick = (subcategoryId) => {
     router.push(`/customer/pages/subcategories/${subcategoryId}`);

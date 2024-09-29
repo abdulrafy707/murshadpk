@@ -64,8 +64,8 @@ const Contact = () => {
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">Contact Information</h2>
               <p className="text-gray-600 leading-relaxed mb-4">
                 <strong>Email:</strong> <a href="mailto:support@store2u.com" className="text-blue-500 hover:underline">munawar.vu@gmail.com</a><br />
-                <strong>Phone:</strong> <a href="tel:+923128807795" className="text-blue-500 hover:underline">+92310356111</a><br />
-                <strong>Address:</strong> PO Chak No. 356/jb Khalsa Abad, Tehseil Gojra,District Toba Tek Singh, Punjab, Pakistan
+                <strong>Phone:</strong> <a href="tel:+923128807795" className="text-blue-500 hover:underline">03137743008</a><br />
+                <strong>Address:</strong> Near union council kandhanwala  P/O Mandi Bahauddin , Tehsil and Distr, -, -, Pakistan
               </p>
             </section>
             <section>
