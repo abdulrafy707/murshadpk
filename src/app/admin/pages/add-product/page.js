@@ -228,7 +228,7 @@ const AddProductPageContent = () => {
       const uploadedImages = await Promise.all(
         images.map(async (img) => {
           const imageBase64 = await convertToBase64(img);
-          const response = await fetch('https://murshadpkdata.advanceaitool.com/uploads.php', {
+          const response = await fetch('https://murshadpkdata.advanceaitool.com/uploadImage.php', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -307,7 +307,7 @@ const AddProductPageContent = () => {
       const uploadedImages = await Promise.all(
         images.map(async (img) => {
           const imageBase64 = await convertToBase64(img);
-          const response = await fetch('https://murshadpkdata.advanceaitool.com/uploads.php', {
+          const response = await fetch('https://murshadpkdata.advanceaitool.com/uploadImage.php', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
