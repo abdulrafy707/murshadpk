@@ -81,7 +81,7 @@ export default function WhatsAppButton() {
                 <div key={index} className="flex items-center mb-4">
                   {item.images && item.images.length > 0 ? (
                     <img
-                      src={`https://data.tascpa.ca/uploads/${item.images[0].url}`}
+                      src={`https://murshadpkdata.advanceaitool.com/uploads/${item.images[0].url}`}
                       alt={item.name}
                       className="h-16 w-16 object-cover rounded mr-4"
                     />

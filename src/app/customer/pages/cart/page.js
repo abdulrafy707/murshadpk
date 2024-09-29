@@ -129,7 +129,7 @@ const CartPage = () => {
                 {/* Product Information */}
                 {item.images && item.images.length > 0 ? (
                   <img
-                    src={`https://data.tascpa.ca/uploads/${item.images[0].url}`}
+                    src={`https://murshadpkdata.advanceaitool.com/uploads/${item.images[0].url}`}
                     alt={item.name}
                     className="h-20 w-20 object-cover rounded mr-4 "
                   />

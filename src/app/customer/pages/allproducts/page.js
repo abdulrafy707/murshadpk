@@ -117,7 +117,7 @@ const AllProducts = () => {
                 <div className="relative">
                   {product.images && product.images.length > 0 ? (
                     <motion.img
-                      src={`https://data.tascpa.ca/uploads/${product.images[0]}`}
+                      src={`https://murshadpkdata.advanceaitool.com/uploads/${product.images[0]}`}
                       alt={product.name}
                       className="h-[240px] md:h-[220px] w-full object-cover mb-4 rounded bg-white"
                       whileHover={{ scale: 1.1 }}

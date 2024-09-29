@@ -395,7 +395,7 @@ export async function DELETE(request, { params }) {
 // //         if (typeof image === 'string') {
 // //           return image;
 // //         } else if (image.base64) {
-// //           const response = await fetch('https://data.tascpa.ca/uploadImage.php', {
+// //           const response = await fetch('https://murshadpkdata.advanceaitool.com/uploadImage.php', {
 // //             method: 'POST',
 // //             headers: {
 // //               'Content-Type': 'application/json',

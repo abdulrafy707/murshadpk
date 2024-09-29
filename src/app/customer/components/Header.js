@@ -229,7 +229,7 @@ const Header = () => {
                         {/* Image of the category */}
                         {category.imageUrl && (
                           <img
-                            src={`https://data.tascpa.ca/uploads/${category.imageUrl}`} // Correct API URL or file path
+                            src={`https://murshadpkdata.advanceaitool.com/uploads/${category.imageUrl}`} // Correct API URL or file path
                             alt={category.name}
                             className="w-8 h-8 object-cover rounded-full"
                           />
@@ -262,7 +262,7 @@ const Header = () => {
                             {/* Subcategory Image */}
                             {subcategory.imageUrl && (
                               <img
-                                src={`https://data.tascpa.ca/uploads/${subcategory.imageUrl}`}
+                                src={`https://murshadpkdata.advanceaitool.com/uploads/${subcategory.imageUrl}`}
                                 alt={subcategory.name}
                                 className="w-8 h-8 object-cover rounded-full"
                               />
@@ -286,7 +286,7 @@ const Header = () => {
                           {/* Subcategory Image */}
                           {subcategory.imageUrl && (
                             <img
-                              src={`https://data.tascpa.ca/uploads/${subcategory.imageUrl}`}
+                              src={`https://murshadpkdata.advanceaitool.com/uploads/${subcategory.imageUrl}`}
                               alt={subcategory.name}
                               className="w-8 h-8 object-cover rounded-full"
                             />

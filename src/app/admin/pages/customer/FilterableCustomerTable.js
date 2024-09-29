@@ -42,7 +42,7 @@ const FilterableCustomerTable = ({ customers, fetchCustomers }) => {
       let imageUrl = '';
       if (images.length > 0) {
         const imageBase64 = await convertToBase64(images[0]);
-        const response = await fetch('https://data.tascpa.ca/uploadImage.php', {
+        const response = await fetch('https://murshadpkdata.advanceaitool.com/uploadImage.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

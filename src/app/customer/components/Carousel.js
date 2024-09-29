@@ -14,7 +14,7 @@ function Slider() {
       }
       const data = await response.json();
       const formattedSlides = data.map(slide => ({
-        image: `https://data.tascpa.ca/uploads/${slide.imgurl}`,
+        image: `https://murshadpkdata.advanceaitool.com/uploads/${slide.imgurl}`,
         link: slide.link,
       }));
       setSlides(formattedSlides);

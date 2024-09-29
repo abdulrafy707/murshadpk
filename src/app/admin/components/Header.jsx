@@ -17,7 +17,7 @@ const Header = () => {
             width={40}
             height={40}
           /> */}
-          <span className="text-white text-2xl font-semibold ml-2">Store2u</span>
+          <span className="text-white text-2xl font-semibold ml-2">Murshadpk</span>
         </div>
       </div>
       <div className="flex items-center space-x-6">

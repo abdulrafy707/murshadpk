@@ -224,7 +224,7 @@ const UserOrders = () => {
       {/* Product Image */}
       {item.product.images && item.product.images.length > 0 ? (
         <img
-          src={`https://data.tascpa.ca/uploads/${item.product.images[0].url}`}
+          src={`https://murshadpkdata.advanceaitool.com/uploads/${item.product.images[0].url}`}
           alt={item.product.name}
           className="h-20 w-20 object-cover rounded mr-4"
         />

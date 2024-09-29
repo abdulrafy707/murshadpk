@@ -96,7 +96,7 @@ const LoginPage = () => {
 
   const uploadImage = async (base64) => {
     try {
-      const response = await fetch('https://data.tascpa.ca/uploadImage.php', {
+      const response = await fetch('https://murshadpkdata.advanceaitool.com/uploadImage.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

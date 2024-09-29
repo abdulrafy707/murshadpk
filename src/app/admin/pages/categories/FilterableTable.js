@@ -35,7 +35,7 @@ const FilterableTable = ({ categories, fetchCategories }) => {
 
       if (image) {
         const imageBase64 = await convertToBase64(image);
-        const response = await fetch('https://murshadpkdata.advanceaitool.com/uploads.php', {
+        const response = await fetch(' https://murshadpkdata.advanceaitool.com/uploadImage.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -196,7 +196,7 @@ const FilterableTable = ({ categories, fetchCategories }) => {
                   <tr key={item.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.imageUrl && <img src={`https://murshadpkdata.advanceaitool.com/uploads.php/${item.imageUrl}`} alt={item.name} className="w-16 h-16 object-cover" />}
+                      {item.imageUrl && <img src={` https://murshadpkdata.advanceaitool.com/uploads/${item.imageUrl}`} alt={item.name} className="w-16 h-16 object-cover" />}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.name}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(item.createdAt).toLocaleString()}</td>
@@ -243,7 +243,7 @@ const FilterableTable = ({ categories, fetchCategories }) => {
             {newCategory.imageUrl && (
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">Current Image</label>
-                <img src={`https://murshadpkdata.advanceaitool.com/uploads.php/${newCategory.imageUrl}`} alt={newCategory.name} className="w-32 h-32 object-cover mb-2" />
+                <img src={` https://murshadpkdata.advanceaitool.com/uploads/${newCategory.imageUrl}`} alt={newCategory.name} className="w-32 h-32 object-cover mb-2" />
               </div>
             )}
             <div className="mb-4">

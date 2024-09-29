@@ -90,7 +90,7 @@ const FilterableSliderTable = ({ sliders = [], fetchSliders }) => {
 
       if (fileInputRef.current.files.length > 0) {
         const imageBase64 = await convertToBase64(fileInputRef.current.files[0]);
-        const response = await fetch('https://data.tascpa.ca/uploadImage.php', {
+        const response = await fetch('https://murshadpkdata.advanceaitool.com/uploadImage.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -210,7 +210,7 @@ const FilterableSliderTable = ({ sliders = [], fetchSliders }) => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {item.imgurl ? (
                         <img
-                          src={`https://data.tascpa.ca/uploads/${item.imgurl}`}
+                          src={`https://murshadpkdata.advanceaitool.com/uploads/${item.imgurl}`}
                           alt={`Slider Image ${item.id}`}
                           className="w-16 h-16 object-cover"
                         />
@@ -273,7 +273,7 @@ const FilterableSliderTable = ({ sliders = [], fetchSliders }) => {
                   <h4 className="text-md font-medium mb-2">Existing Image</h4>
                   <div className="relative">
                     <img
-                      src={`https://data.tascpa.ca/uploads/${existingImage}`}
+                      src={`https://murshadpkdata.advanceaitool.com/uploads/${existingImage}`}
                       alt="Existing Slider"
                       className="w-full h-32 object-cover"
                     />

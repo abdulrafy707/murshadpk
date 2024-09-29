@@ -175,7 +175,7 @@ const FilterableTable = ({
         [...fileInputRef.current.files].map(async (file) => {
           const imageBase64 = await convertToBase64(file);
           const response = await fetch(
-            'https://data.tascpa.ca/uploadImage.php',
+            'https://murshadpkdata.advanceaitool.com/uploadImage.php',
             {
               method: 'POST',
               headers: {
@@ -391,7 +391,7 @@ const FilterableTable = ({
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {item.images && item.images.length > 0 ? (
                         <img
-                          src={`https://data.tascpa.ca/uploads/${item.images[0].url}`}
+                          src={`https://murshadpkdata.advanceaitool.com/uploads/${item.images[0].url}`}
                           alt={item.name}
                           className="w-16 h-16 object-cover"
                         />
@@ -694,7 +694,7 @@ const FilterableTable = ({
                     {existingImages.map((img, index) => (
                       <div key={index} className="relative">
                         <img
-                          src={`https://data.tascpa.ca/uploads/${img.url}`}
+                          src={`https://murshadpkdata.advanceaitool.com/uploads/${img.url}`}
                           alt={`Product Image ${index}`}
                           className="w-full h-32 object-cover"
                         />

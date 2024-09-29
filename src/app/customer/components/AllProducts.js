@@ -87,7 +87,7 @@ const TopRatedProducts = () => {
               <div className="relative">
                 {product.images && product.images.length > 0 ? (
                   <motion.img
-                    src={`https://data.tascpa.ca/uploads/${product.images[0].url}`}
+                    src={`https://murshadpkdata.advanceaitool.com/uploads/${product.images[0].url}`}
                     alt={product.name}
                     className="h-[240px] w-full object-cover mb-4 rounded bg-white"
                     whileHover={{ scale: 1.1 }}

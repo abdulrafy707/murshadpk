@@ -82,7 +82,7 @@ const FilterableTable = ({ products = [] }) => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {item.images && item.images.length > 0 ? (
                         <img
-                          src={`https://data.tascpa.ca/uploads/${item.images[0].url}`}
+                          src={`https://murshadpkdata.advanceaitool.com/uploads/${item.images[0].url}`}
                           alt={item.name}
                           className="w-16 h-16 object-cover"
                         />

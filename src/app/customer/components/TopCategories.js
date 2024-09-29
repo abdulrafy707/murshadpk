@@ -45,7 +45,7 @@ const TopCategories = () => {
           >
             {category.imageUrl ? (
               <motion.img
-                src={`https://data.tascpa.ca/uploads/${category.imageUrl}`}
+                src={`https://murshadpkdata.advanceaitool.com/uploads/${category.imageUrl}`}
                 alt={category.name}
                 className="w-full h-40 object-cover mb-2" // Decreased height
                 whileHover={{ scale: 1.1 }}
