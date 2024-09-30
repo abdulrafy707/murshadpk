@@ -43,7 +43,7 @@ const Footer = () => {
             </a>
           </Link>
           <p className="text-[15px] font-[400] md:mr-10 sm:mr-10 lg:mr-10 xl:mr-10 text-justify">
-            Murshapk is your ultimate destination for top-quality products, seamless shopping experience, and unmatched customer service. Discover a wide range of items to meet all your needs.
+            Murshadpk.com is your ultimate destination for top-quality products, seamless shopping experience, and unmatched customer service. Discover a wide range of items to meet all your needs.
           </p>
         </div>
         <div className="flex flex-col gap-2 col-span-2">
