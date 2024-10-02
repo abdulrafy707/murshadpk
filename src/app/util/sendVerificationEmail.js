@@ -14,8 +14,8 @@ export async function sendVerificationEmail(email, token) {
       from: process.env.EMAIL_USERNAME,
       to: email,
       subject: 'Email Verification',
-      text: `Please verify your email by clicking the following link: ${process.env.BASE_URL}/customer/pages/verify?token=${token}`,
-      html: `<p>Please verify your email by clicking the following link: <a href="${process.env.BASE_URL}/customer/pages/verify?token=${token}">Verify Email</a></p>`,
+      text: `Please verify your email by clicking the following link: https://www.murshadpk.com/customer/pages/verify?token=${token}`,
+      html: `<p>Please verify your email by clicking the following link: <a href="https://www.murshadpk.com/customer/pages/verify?token=${token}">Verify Email</a></p>`,
     };
 
     await transporter.sendMail(mailOptions);
