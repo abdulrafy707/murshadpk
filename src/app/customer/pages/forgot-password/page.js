@@ -36,7 +36,7 @@ export default function ForgotPassword() {
         <div className="text-center mb-6">
           {/* Logo Section */}
           <div className="flex justify-center mb-4">
-            <img className="w-24" src="/store2ulogo.png" alt="Logo" />
+            <img className="w-24" src="/murshadlogo.png" alt="Logo" />
           </div>
           <h1 className="text-2xl font-bold mb-2">Reset Password</h1>
         </div>
