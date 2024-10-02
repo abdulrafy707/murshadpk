@@ -67,7 +67,7 @@ const TopBar = () => {
             <a href={socialMediaLinks.facebook || '#'} target="_blank" rel="noopener noreferrer" className="hover:text-blue-500">
               <FiFacebook className="text-blue-600" /> {/* Facebook Blue */}
             </a>
-            <a href="mailto:info@store2u.ca" className="hover:text-red-500">
+            <a href="mailto:info@murshadpk.com.ca" className="hover:text-red-500">
               <FaEnvelope className="text-red-600" /> {/* Red for Envelope */}
             </a>
             <a href={socialMediaLinks.instagram || '#'} target="_blank" rel="noopener noreferrer" className="hover:text-pink-500">

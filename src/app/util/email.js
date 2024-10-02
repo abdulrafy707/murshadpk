@@ -6,7 +6,7 @@ export async function sendVerificationEmail(email, token) {
     port: 587, // Use the correct port for non-secure connections
     secure: false, // Set to true if you switch to port 465 (SSL)
     auth: {
-      user: 'info@store2u.ca', // Your email
+      user: 'info@murshadpk.com.ca', // Your email
       pass: 'DildilPakistan786@786@tahir', // Your email password
     },
   });
@@ -15,7 +15,7 @@ export async function sendVerificationEmail(email, token) {
 
 
   const mailOptions = {
-    from: 'info@store2u.ca',
+    from: 'info@murshadpk.com.ca',
     to: email,
     subject: 'Verify Your Email Address',
     html: `<p>Thank you for registering. Please click the link below to verify your email address:</p><a href="${verificationLink}">Verify Email</a>`,

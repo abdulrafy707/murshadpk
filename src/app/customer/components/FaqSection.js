@@ -7,8 +7,8 @@ const FaqSection = () => {
 
   const faqs = [
     {
-      question: "What is Store2U?",
-      answer: "Store2U is an online shopping platform that offers a wide range of high-quality products at competitive prices. Our mission is to provide the best online shopping experience with exceptional customer service."
+      question: "What is murshadpk.com?",
+      answer: "murshadpk.com is an online shopping platform that offers a wide range of high-quality products at competitive prices. Our mission is to provide the best online shopping experience with exceptional customer service."
     },
     {
       question: "How do I place an order?",
@@ -28,7 +28,7 @@ const FaqSection = () => {
     },
     // {
     //   question: "How do I contact customer support?",
-    //   answer: "You can reach our customer support team via email at support@store2u.com or by phone at +92 312 8807795. We are available Monday to Friday from 9 AM to 6 PM."
+    //   answer: "You can reach our customer support team via email at support@murshadpk.com.com or by phone at +92 312 8807795. We are available Monday to Friday from 9 AM to 6 PM."
     // },
     // {
     //   question: "Do you offer international shipping?",
@@ -40,7 +40,7 @@ const FaqSection = () => {
     // },
     // {
     //   question: "Do you have a physical store?",
-    //   answer: "No, Store2U operates exclusively online to offer you the best prices and convenience. You can shop with us anytime, anywhere."
+    //   answer: "No, murshadpk.com operates exclusively online to offer you the best prices and convenience. You can shop with us anytime, anywhere."
     // },
     // {
     //   question: "What are your shipping rates?",

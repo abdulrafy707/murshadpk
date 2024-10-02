@@ -5,21 +5,21 @@ const Terms = () => {
   return (
     <>
       <Head>
-        <title>Terms and Conditions - Store2U</title>
+        <title>Terms and Conditions - murshadpk.com</title>
       </Head>
       <div className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-4xl font-bold mb-8 text-center">Terms and Conditions</h1>
         <p className="text-sm text-gray-500 mb-4">Last Updated: [Date]</p>
         <p className="mb-4">
-          Welcome to Store2U! These terms and conditions outline the rules and regulations for the use of Store2U's website, located at <a href="http://www.store2u.com" className="text-blue-500 hover:underline">www.store2u.com</a> (the "Site").
+          Welcome to murshadpk.com! These terms and conditions outline the rules and regulations for the use of murshadpk.com's website, located at <a href="http://www.murshadpk.com.com" className="text-blue-500 hover:underline">www.murshadpk.com.com</a> (the "Site").
         </p>
         <p className="mb-8">
-          By accessing this website, we assume you accept these terms and conditions. Do not continue to use Store2U if you do not agree to take all of the terms and conditions stated on this page.
+          By accessing this website, we assume you accept these terms and conditions. Do not continue to use murshadpk.com if you do not agree to take all of the terms and conditions stated on this page.
         </p>
 
         <h2 className="text-2xl font-semibold mb-4">1. Definitions</h2>
         <p className="mb-8">
-          "Company," "We," "Our," "Us": Refers to Store2U.<br />
+          "Company," "We," "Our," "Us": Refers to murshadpk.com.<br />
           "Customer," "User," "You": Refers to the person using our website.<br />
           "Products": Refers to the goods and services offered on the Site.
         </p>
@@ -56,18 +56,18 @@ const Terms = () => {
 
         <h2 className="text-2xl font-semibold mb-4">7. Intellectual Property</h2>
         <p className="mb-8">
-          All content included on the Site, such as text, graphics, logos, images, and software, is the property of Store2U or its content suppliers and protected by copyright laws.<br />
+          All content included on the Site, such as text, graphics, logos, images, and software, is the property of murshadpk.com or its content suppliers and protected by copyright laws.<br />
           You may not use, reproduce, distribute, or create derivative works of any content on the Site without our express written permission.
         </p>
 
         <h2 className="text-2xl font-semibold mb-4">8. Limitation of Liability</h2>
         <p className="mb-8">
-          To the fullest extent permitted by law, Store2U shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses, resulting from your use of the Site or purchase of products.
+          To the fullest extent permitted by law, murshadpk.com shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses, resulting from your use of the Site or purchase of products.
         </p>
 
         <h2 className="text-2xl font-semibold mb-4">9. Indemnification</h2>
         <p className="mb-8">
-          You agree to indemnify, defend, and hold harmless Store2U and our affiliates, officers, directors, employees, agents, and suppliers from and against any claims, liabilities, damages, losses, costs, or expenses, including reasonable attorneys' fees, arising out of or in any way connected with your use of the Site or your violation of these terms and conditions.
+          You agree to indemnify, defend, and hold harmless murshadpk.com and our affiliates, officers, directors, employees, agents, and suppliers from and against any claims, liabilities, damages, losses, costs, or expenses, including reasonable attorneys' fees, arising out of or in any way connected with your use of the Site or your violation of these terms and conditions.
         </p>
 
         <h2 className="text-2xl font-semibold mb-4">10. Changes to These Terms</h2>
@@ -82,10 +82,10 @@ const Terms = () => {
 
         <h2 className="text-2xl font-semibold mb-4">12. Contact Us</h2>
         <p className="mb-4">
-          If you have any questions about these terms and conditions, please contact us at <a href="mailto:support@store2u.com" className="text-blue-500 hover:underline">support@store2u.com</a> or by mail at:
+          If you have any questions about these terms and conditions, please contact us at <a href="mailto:support@murshadpk.com.com" className="text-blue-500 hover:underline">support@murshadpk.com.com</a> or by mail at:
         </p>
         <address className="mb-8">
-          Store2U<br />
+          murshadpk.com<br />
           [Your Company Address]<br />
           [City, State, Zip Code]<br />
           [Country]

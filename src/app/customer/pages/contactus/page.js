@@ -47,8 +47,8 @@ const Contact = () => {
   return (
     <>
       <Head>
-        <title>Contact Us - Store2U</title>
-        <meta name="description" content="Get in touch with Store2U. We would love to hear from you!" />
+        <title>Contact Us - murshadpk.com</title>
+        <meta name="description" content="Get in touch with murshadpk.com. We would love to hear from you!" />
       </Head>
       <div className="bg-gray-100 py-12">
         <div className="container mx-auto px-4 md:px-8">
@@ -63,7 +63,7 @@ const Contact = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">Contact Information</h2>
               <p className="text-gray-600 leading-relaxed mb-4">
-                <strong>Email:</strong> <a href="mailto:support@store2u.com" className="text-blue-500 hover:underline">munawar.vu@gmail.com</a><br />
+                <strong>Email:</strong> <a href="mailto:support@murshadpk.com.com" className="text-blue-500 hover:underline">munawar.vu@gmail.com</a><br />
                 <strong>Phone:</strong> <a href="tel:+923128807795" className="text-blue-500 hover:underline">03137743008</a><br />
                 <strong>Address:</strong> Near union council kandhanwala  P/O Mandi Bahauddin , Tehsil and Distr, -, -, Pakistan
               </p>

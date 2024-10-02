@@ -5,13 +5,13 @@ const PrivacyPolicy = () => {
   return (
     <>
       <Head>
-        <title>Privacy Policy - Store2U</title>
+        <title>Privacy Policy - murshadpk.com</title>
       </Head>
       <div className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-4xl font-bold mb-8 text-center">Privacy Policy</h1>
         <p className="text-sm text-gray-500 mb-4">Last Updated: 2-8-2024</p>
         <p className="mb-4">
-          Welcome to Store2U! Your privacy is critically important to us. This privacy policy explains how we collect, use, disclose, and protect your personal information when you visit or make a purchase from <a href="http://www.store2u.ca" className="text-blue-500 hover:underline">www.store2u.ca</a>.
+          Welcome to murshadpk.com! Your privacy is critically important to us. This privacy policy explains how we collect, use, disclose, and protect your personal information when you visit or make a purchase from <a href="http://www.murshadpk.com.ca" className="text-blue-500 hover:underline">www.murshadpk.com.ca</a>.
         </p>
 
         <h2 className="text-2xl font-semibold mb-4">1. Information We Collect</h2>
@@ -71,17 +71,17 @@ const PrivacyPolicy = () => {
 
         <h2 className="text-2xl font-semibold mb-4">7. Contact Us</h2>
         <p className="mb-4">
-          For more information about our privacy practices, if you have questions, or if you would like to make a complaint, please contact us by email at <a href="mailto:info@store2u.ca" className="text-blue-500 hover:underline">info@store2u.ca</a> or by mail using the details provided below:
+          For more information about our privacy practices, if you have questions, or if you would like to make a complaint, please contact us by email at <a href="mailto:info@murshadpk.com.ca" className="text-blue-500 hover:underline">info@murshadpk.com.ca</a> or by mail using the details provided below:
         </p>
         <address className="mb-8">
-          Store2U<br />
+          murshadpk.com<br />
           Tahir Sajjad<br />
           15C 12street, Garden Town<br />
           Gojra, Punjab, Pakistan<br />
           56000<br />
           PAKISTAN<br />
           0092-3310356111<br />
-          <a href="mailto:info@store2u.ca" className="text-blue-500 hover:underline">info@store2u.ca</a>
+          <a href="mailto:info@murshadpk.com.ca" className="text-blue-500 hover:underline">info@murshadpk.com.ca</a>
         </address>
 
         <p className="mb-4">

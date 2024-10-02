@@ -15,7 +15,7 @@ export default function WhatsAppButton() {
   const [cartVisible, setCartVisible] = useState(false);
 
   const handleClick = () => {
-    const url = `https://wa.me/${phoneNumber}?text=Hello%Store2u`;
+    const url = `https://wa.me/${phoneNumber}?text=Hello%murshadpk.com`;
     window.open(url, '_blank');
   };
 
