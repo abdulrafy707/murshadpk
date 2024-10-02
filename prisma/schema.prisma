@@ -88,6 +88,7 @@ model Product {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   orderItems  OrderItem[]
+  reviews     Review[]
 
   meta_title       String?
   meta_description String?
@@ -203,4 +204,14 @@ enum OrderStatus {
   CANCELLED
 }
 
+
+model Review {
+  id          Int      @id @default(autoincrement())
+  productId   Int      // Foreign key linking the review to a product
+  product     Product  @relation(fields: [productId], references: [id])
+  reviewer    String   // Name of the reviewer
+  rating      Int      // Rating, e.g., from 1 to 5 stars
+  comment     String?  // Optional review comment
+  createdAt   DateTime @default(now()) // Date the review was created
+}
 
