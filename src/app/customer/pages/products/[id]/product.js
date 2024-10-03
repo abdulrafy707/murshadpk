@@ -19,6 +19,7 @@ const ProductPage = () => {
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [reviews, setReviews] = useState([]); // Add state to store reviews
+
   const [cart, setCartState] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -53,7 +54,7 @@ const ProductPage = () => {
 
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(`/api/reviews?productId=${id}`);
+        const response = await axios.get(`/api/getreviews?productId=${id}`);
         setReviews(response.data.reviews); // Assuming the API returns reviews in this structure
       } catch (error) {
         console.error('Error fetching reviews:', error);
@@ -158,44 +159,206 @@ const ProductPage = () => {
   }
 
   return (
+    
+      
     <div className="container mx-auto px-4">
       <ToastContainer />
-      {/* Your existing product details layout */}
-
-      {/* Reviews Section */}
-      <div className="mt-12">
-        <h3 className="text-2xl font-semibold mb-6">Customer Reviews</h3>
-        {reviews.length > 0 ? (
-          <div className="grid grid-cols-1 gap-y-4">
-            {reviews.map((review, index) => (
-              <div key={index} className="flex flex-col bg-white shadow-md p-4 rounded-lg border border-gray-200">
-                <div className="flex items-center mb-2">
-                  <div className="flex items-center justify-center bg-gray-200 rounded-full h-10 w-10">
-                    {review.reviewer.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="ml-3">
-                    <h4 className="text-lg font-semibold">{review.reviewer}</h4>
-                    <p className="text-sm text-gray-500">{new Date(review.createdAt).toLocaleDateString()}</p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <div className="flex items-center mb-2">
-                    {Array(review.rating).fill().map((_, i) => (
-                      <span key={i} className="text-yellow-500">&#9733;</span> // Display filled stars for rating
-                    ))}
-                    {Array(5 - review.rating).fill().map((_, i) => (
-                      <span key={i} className="text-gray-300">&#9733;</span> // Display empty stars for remaining
-                    ))}
-                  </div>
-                </div>
-                <p className="text-gray-700 mt-2">{review.comment}</p>
-              </div>
+      {isNavigating && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <ThreeDots
+            height="80"
+            width="80"
+            radius="9"
+            color="#3498db"
+            ariaLabel="three-dots-loading"
+            visible={true}
+          />
+        </div>
+      )}
+      <div className="flex flex-wrap pt-4 items-stretch min-h-screen">
+        {/* Product Images and Details */}
+        <div className="w-full lg:w-3/5 mt-8 mb-8 lg:mb-0 flex flex-col h-full">
+          <div className="flex w-20 flex-col justify-center items-center mr-4">
+            {product.images && product.images.map((image, index) => (
+              <img
+                key={index}
+                src={getImageUrl(image.url)}
+                alt={product.name}
+                className={`w-20 h-20 object-cover mb-2 cursor-pointer ${index === currentImageIndex ? 'opacity-100' : 'opacity-50'}`}
+                onClick={() => handleThumbnailClick(index)}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = '/placeholder-image.png'; // Fallback image
+                }}
+              />
             ))}
           </div>
-        ) : (
-          <p>No reviews yet. Be the first to leave a review!</p>
-        )}
+          <div className="relative w-full pt-8 pl-4 right-0">
+            {product.images && product.images.length > 0 ? (
+              <motion.img
+                key={currentImageIndex}
+                src={getImageUrl(product.images[currentImageIndex].url)}
+                alt={product.name}
+                className="w-full h-[400px] object-contain mb-4 cursor-pointer"
+                transition={{ duration: 0.3 }}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = '/placeholder-image.png'; // Fallback image
+                }}
+              />
+            ) : (
+              <div className="h-48 w-full bg-gray-200 mb-4 rounded flex items-center justify-center text-gray-500">
+                No Image
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Product Info and Add to Cart */}
+        <div className="w-full lg:w-2/5 h-full flex flex-col">
+          <h2 className="text-2xl font-bold mb-4">{product.name.toUpperCase()}</h2>
+          
+          <div className="flex items-center mb-4">
+            {product.discount ? (
+              <>
+                <span className="text-green-500 text-xl line-through mr-4">
+                  Rs.{formatPrice(product.price)}
+                </span>
+                <span className="text-red-500 font-bold text-xl">
+                  Rs.{formatPrice(calculateOriginalPrice(product.price, product.discount))}
+                </span>
+              </>
+            ) : (
+              <span className="text-red-500 text-2xl">
+                Rs.{formatPrice(product.price)}
+              </span>
+            )}
+          </div>
+
+          {/* Stock Info */}
+          {product.stock === 0 && <p className="text-lg font-bold text-red-700 mb-1">Out of Stock</p>}
+          {product.stock > 0 && <p className="text-lg font-bold text-green-700 mb-1">In Stock</p>}
+
+          {/* Color and Size Selection */}
+          {colors.length > 0 && (
+            <div className="mb-4">
+              <h3 className="text-md font-medium mb-2">Select Color</h3>
+              <div className="flex flex-wrap gap-2">
+                {colors.map((color, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedColor(color.label)}
+                    className={`w-8 h-8 rounded-full border-2 cursor-pointer ${
+                      selectedColor === color.label ? 'border-black' : 'border-gray-300'
+                    }`}
+                    style={{ backgroundColor: color.hex }}
+                    title={color.label}
+                  >
+                    <span className="sr-only">{color.label}</span>
+                  </button>
+                ))}
+              </div>
+              {selectedColor && <p className="text-sm mt-2">Selected Color: <strong>{selectedColor}</strong></p>}
+            </div>
+          )}
+
+          {/* Size Selection */}
+          {sizes.length > 0 && (
+            <div className="mb-4">
+              <h3 className="text-md font-medium mb-2">Select Size</h3>
+              <div className="flex space-x-2">
+                {sizes.map((size, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedSize(size.label)}
+                    disabled={size.stock === 0}
+                    className={`w-10 h-10 border text-center flex items-center justify-center cursor-pointer
+                      ${selectedSize === size.label ? 'border-black border-[2px]' : 'border-gray-300'} 
+                      ${size.stock === 0 ? 'line-through cursor-not-allowed text-gray-400' : 'hover:border-black'}`}
+                  >
+                    {size.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quantity Selector */}
+          <div className="flex items-center mb-4 border border-gray-300 rounded-full px-4 py-1 w-32">
+            <button
+              className="text-gray-700 px-2"
+              onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+              disabled={quantity <= 1}
+            >
+              <FiMinus />
+            </button>
+            <span className="mx-4">{quantity}</span>
+            <button
+              className="text-gray-700 px-2"
+              onClick={() => setQuantity((prev) => prev + 1)}
+            >
+              <FiPlus />
+            </button>
+          </div>
+
+          {/* Add to Cart Button */}
+          <button
+            className="bg-teal-500 text-white py-2 px-4 rounded-md w-full"
+            onClick={() => handleAddToCart(product)}
+            disabled={product.stock === 0}
+          >
+            Add to cart
+          </button>
+          {/* <h3 className='text-md font-semibold text-gray-700 mb-4 mt-4'>product.meta_title</h3> */}
+
+          <h3 className='text-md font-semibold text-gray-700 mb-4 mt-4'>Description</h3>
+          <div className="text-gray-500 mb-4" dangerouslySetInnerHTML={{ __html: product.description }}></div>
+        </div>
       </div>
+      <div className="mt-12">
+  <h3 className="text-2xl font-semibold mb-6">Customer Reviews</h3>
+  {Array.isArray(reviews) && reviews.length > 0 ? (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+      {reviews.map((review, index) => (
+        <div
+          key={index}
+          className="bg-white shadow-md rounded-lg p-6 flex flex-col justify-between border border-gray-300"
+        >
+          <div>
+            <div className="flex items-center mb-4">
+              <div className="flex items-center justify-center bg-gray-200 rounded-full h-12 w-12 text-lg font-bold">
+                {review.reviewer.charAt(0).toUpperCase()}
+              </div>
+              <div className="ml-4">
+                <h4 className="text-lg font-semibold">{review.reviewer}</h4>
+                <p className="text-sm text-gray-500">
+                  {new Date(review.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center mb-2">
+              {Array(review.rating)
+                .fill()
+                .map((_, i) => (
+                  <span key={i} className="text-yellow-500">&#9733;</span>
+                ))}
+              {Array(5 - review.rating)
+                .fill()
+                .map((_, i) => (
+                  <span key={i} className="text-gray-300">&#9733;</span>
+                ))}
+            </div>
+            <p className="text-gray-700">{review.comment}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p className="text-gray-500">No reviews yet. Be the first to leave a review!</p>
+  )}
+</div>
+
+
 
       {/* Related Products Section */}
       <div className="mt-12 mb-8">
@@ -356,3 +519,6 @@ const ProductPage = () => {
 };
 
 export default ProductPage;
+
+
+
