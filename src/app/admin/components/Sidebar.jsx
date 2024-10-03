@@ -12,7 +12,8 @@ import {
   FaRuler, 
   FaCogs, 
   FaTicketAlt, 
-  FaImages 
+  FaImages, 
+  FaStar
 } from 'react-icons/fa';
 
 const Sidebar = ({ setActiveComponent }) => {
@@ -277,6 +278,29 @@ const Sidebar = ({ setActiveComponent }) => {
                   <a href='/admin/pages/socialmedia'>
                     <button className="flex items-center p-2 hover:bg-blue-700 rounded">
                       <span className="ml-2">Manage Social Media</span>
+                    </button>
+                  </a>
+                </li>
+              </ul>
+            )}
+          </li>
+
+
+          <li>
+            <button
+              className="flex items-center w-full p-2 hover:bg-blue-700 rounded focus:outline-none"
+              onClick={() => toggleDropdown('reviews')}
+            >
+              <FaStar className="h-5 w-5" />
+              <span className="ml-2">Customer Reviews</span>
+              <FaChevronDown className="h-3 w-3 ml-auto" />
+            </button>
+            {isDropdownOpen.reviews && (
+              <ul className="ml-8 mt-2 space-y-2">
+                <li>
+                  <a href='/admin/pages/reviews'>
+                    <button className="flex items-center p-2 hover:bg-blue-700 rounded">
+                      <span className="ml-2">View Reviews</span>
                     </button>
                   </a>
                 </li>
