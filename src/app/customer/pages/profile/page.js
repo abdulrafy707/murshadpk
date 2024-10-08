@@ -42,22 +42,34 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userId = 1; 
+        const userId = localStorage.getItem('userId'); // Get user ID from local storage
+        if (!userId) {
+          toast.error('User ID not found in local storage.');
+          return;
+        }
+
         const response = await axios.get(`/api/users/${userId}`);
         const data = response.data;
-        setUserData({
-          name: data.name,
-          email: data.email,
-          phoneno: data.phoneno,
-          city: data.city,
-          imageUrl: data.imageUrl || '/eco1.jpg',
-        });
 
-        setEditData({
-          name: data.name,
-          phoneno: data.phoneno,
-          city: data.city,
-        });
+        console.log('User Data:', data); // Log the user data
+
+        if (data) {
+          setUserData({
+            name: data.name,
+            email: data.email,
+            phoneno: data.phoneno,
+            city: data.city,
+            imageUrl: data.imageUrl || '/eco1.jpg',
+          });
+
+          setEditData({
+            name: data.name,
+            phoneno: data.phoneno,
+            city: data.city,
+          });
+        } else {
+          toast.error('User data not found.');
+        }
       } catch (error) {
         console.error('Error fetching user data:', error);
         toast.error('Failed to load user data.');
@@ -84,19 +96,23 @@ const ProfilePage = () => {
   };
 
   const handleUpdateProfile = async () => {
+    const userId = localStorage.getItem('userId'); // Get userId from local storage
     if (!editData.name || !editData.phoneno || !editData.city) {
       toast.error('Please fill out all fields.');
       return;
     }
-
+  
     try {
       setLoading(true); 
-      const response = await axios.put('/api/users/update_profile', editData, {
+      const response = await axios.put('/api/users/update_profile', {
+        ...editData,
+        id: userId, // Include userId in the request body
+      }, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
-
+  
       if (response.data.status) {
         toast.success('Profile updated successfully!');
         closeModal(); 
@@ -111,6 +127,8 @@ const ProfilePage = () => {
       setLoading(false); 
     }
   };
+  
+  
 
   return (
     <div className="container mx-auto p-6 flex flex-col md:flex-row items-center justify-between min-h-screen">

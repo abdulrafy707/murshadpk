@@ -4,32 +4,21 @@ import prisma from '@/app/util/prisma';
 import { NextResponse } from 'next/server';
 
 export async function PUT(request) {
+  const { name, phoneno, city, id } = await request.json(); // Extract id from request body
+
   try {
-    const data = await request.json();
-    const { name, phoneno, city } = data;
-
-    if (!name || !phoneno || !city) {
-      return NextResponse.json(
-        { message: 'Missing required fields', status: false },
-        { status: 400 }
-      );
-    }
-
-    const updatedUser = await prisma.user.update({
-      where: { id: 1 }, // Replace with user ID logic
-      data: { name, phoneno, city, updatedAt: new Date() },
+    const user = await prisma.user.update({
+      where: { id: parseInt(id) }, // Use the id provided in the request
+      data: {
+        name,
+        phoneno,
+        city,
+      },
     });
 
-    return NextResponse.json({
-      status: true,
-      message: 'Profile updated successfully',
-      updatedUser,
-    });
+    return NextResponse.json({ status: true, user });
   } catch (error) {
-    console.error('Error updating profile:', error);
-    return NextResponse.json(
-      { message: 'Internal Server Error', status: false },
-      { status: 500 }
-    );
+    console.error("Error updating user:", error);
+    return NextResponse.json({ status: false, message: error.message }, { status: 500 });
   }
 }

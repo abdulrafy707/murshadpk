@@ -156,6 +156,18 @@ const Header = () => {
     setHoveredCategory(null);
   };
 
+
+  const handleSignOut = () => {
+    // Clear the session token or any other authentication details
+    sessionStorage.removeItem('authToken');
+    setAuthToken(null);
+    setIsSignOutModalOpen(false);
+  
+    // Redirect the user to the login page
+    router.push('/customer/pages/login');
+  };
+  
+
   return (
     <header className="bg-white py-4 sticky top-0 z-50 shadow-md">
       <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8">

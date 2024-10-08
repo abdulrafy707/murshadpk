@@ -48,6 +48,8 @@ const LoginForm = () => {
         sessionStorage.setItem('authToken', data.token); // Store token in sessionStorage
         const token = data.token;
         const decodedToken = jwtDecode(token);
+        localStorage.setItem('userId', decodedToken.id);
+        localStorage.setItem('userName', decodedToken.name);
 
         setTimeout(() => {
           if (decodedToken.role === 'CUSTOMER') {
