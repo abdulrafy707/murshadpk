@@ -29,8 +29,8 @@ const NewArrivals = () => {
     fetchProducts();
   }, []);
 
-  const handleProductClick = (id) => {
-    router.push(`/customer/pages/products/${id}`);
+  const handleProductClick = (slug) => {
+    router.push(`/customer/pages/products/${slug}`);
   };
 
   const handleAddToCart = (product) => {
@@ -96,19 +96,19 @@ const NewArrivals = () => {
                     className="h-[240px] w-full object-cover mb-4 rounded bg-white"
                     whileHover={{ scale: 1.1 }}
                     transition={{ duration: 0.3 }}
-                    onClick={() => handleProductClick(product.id)}
+                    onClick={() => handleProductClick(product.slug)}
                   />
                 ) : (
                   <div
                     className="h-[240px] w-full bg-gray-200 mb-4 rounded flex items-center justify-center text-gray-500"
-                    onClick={() => handleProductClick(product.id)}
+                    onClick={() => handleProductClick(product.slug)}
                   >
                     No Image
                   </div>
                 )}
                 <button
                   className="absolute bottom-2 right-2 bg-teal-500 text-white h-8 w-8 flex justify-center items-center rounded-full shadow-lg hover:bg-teal-600 transition-colors duration-300"
-                  onClick={() => handleProductClick(product.id)}
+                  onClick={() => handleProductClick(product.slug)}
                 >
                   <span className="text-xl font-bold leading-none">+</span>
                 </button>
@@ -140,7 +140,7 @@ const NewArrivals = () => {
                                 WebkitLineClamp: 2, // Limits to 2 lines
                                 maxHeight: '3em', // Approximate height for 2 lines
                               }}
-                              onClick={() => handleProductClick(product.id)}
+                              onClick={() => handleProductClick(product.slug)}
                             >
                               {product.name.toUpperCase()}
                             </h3>
