@@ -189,6 +189,15 @@ model SocialMedia {
 }
 
 
+model FacebookPixel {
+  id        Int      @id @default(autoincrement())
+  pixelCode String
+  pixelId   String?   // Make sure this field is not required unless you're providing it
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
 
 
 

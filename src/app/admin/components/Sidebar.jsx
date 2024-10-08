@@ -215,6 +215,13 @@ const Sidebar = ({ setActiveComponent }) => {
                     </button>
                   </a>
                 </li>
+                <li>
+                  <a href='/admin/pages/facebook-pixel'>
+                    <button className="flex items-center p-2 hover:bg-blue-700 rounded">
+                      <span className="ml-2">Facebook Pixel</span>
+                    </button>
+                  </a>
+                </li>
               </ul>
             )}
           </li>
