@@ -83,7 +83,7 @@ export async function PUT(request, { params }) {
 
 
 export async function GET(request, { params }) {
-  const { slug } = params;
+  const { slug } = params; // Use slug parameter
 
   try {
     // Fetch the product by slug
@@ -130,6 +130,7 @@ export async function GET(request, { params }) {
     );
   }
 }
+
 
 
 export async function DELETE(request, { params }) {

@@ -21,14 +21,14 @@ const Header = () => {
         </div>
       </div>
       <div className="flex items-center space-x-6">
-        <div className="relative text-white">
+        {/* <div className="relative text-white">
           <FontAwesomeIcon icon={faBell} />
           <span className="absolute top-0 right-3 h-4 w-4 bg-red-500 text-xs flex items-center justify-center rounded-full">2</span>
         </div>
         <div className="relative text-white">
           <FontAwesomeIcon icon={faEnvelope} />
           <span className="absolute top-0 right-3 h-4 w-4 bg-red-500 text-xs flex items-center justify-center rounded-full">3</span>
-        </div>
+        </div> */}
         <div className="flex items-center">
           {/* <Image
             src="/ali.png"

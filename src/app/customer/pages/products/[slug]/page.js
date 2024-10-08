@@ -16,7 +16,7 @@ async function getProductData(slug) {
     }
 
     const data = await res.json();
-    return data.data.product;
+    return data.data;
   } catch (error) {
     console.error('Error fetching product data:', error);
     return null;
@@ -25,10 +25,10 @@ async function getProductData(slug) {
 
 // Metadata generation
 export async function generateMetadata({ params }) {
-  const { slug } = params; // Changed from 'id' to 'slug'
-  const product = await getProductData(slug); // Fetch using 'slug'
+  const { slug } = params;
+  const productData = await getProductData(slug);
 
-  if (!product) {
+  if (!productData?.product) {
     return {
       title: 'Product not found',
       description: 'No product information available',
@@ -36,25 +36,25 @@ export async function generateMetadata({ params }) {
   }
 
   return {
-    title: product.meta_title || product.name || 'Product Title',
-    description: product.meta_description || 'Product Description',
-    keywords: product.meta_keywords || 'Product Keywords',
+    title: productData.product.meta_title || productData.product.name || 'Product Title',
+    description: productData.product.meta_description || 'Product Description',
+    keywords: productData.product.meta_keywords || 'Product Keywords',
   };
 }
 
 const ProductDetailsPage = async ({ params }) => {
-  const { slug } = params; // Changed from 'id' to 'slug'
+  const { slug } = params;
 
   // Fetch the product data using 'slug'
-  const product = await getProductData(slug);
+  const productData = await getProductData(slug);
 
   // Handle product not found
-  if (!product) {
+  if (!productData?.product) {
     return notFound(); // Use Next.js built-in 404 handling
   }
 
   // Return the ProductPage component with the fetched product data
-  return <ProductPage productData={product} />;
+  return <ProductPage productData={productData} />;
 };
 
 export default ProductDetailsPage;

@@ -1,3 +1,5 @@
+// app/customer/pages/products/product.js
+
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -7,7 +9,7 @@ import { motion } from 'framer-motion';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from 'react-redux';
-import { addToCart, setCart } from '@/app/store/cartSlice';
+import { setCart } from '@/app/store/cartSlice';
 import { ThreeDots } from 'react-loader-spinner';
 import Modal from 'react-modal';
 import { FiMinus, FiPlus } from 'react-icons/fi';
@@ -15,45 +17,44 @@ import { FiMinus, FiPlus } from 'react-icons/fi';
 const ProductPage = ({ productData }) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const [product, setProduct] = useState(productData);
+  const [product, setProduct] = useState(productData.product);
   const [relatedProducts, setRelatedProducts] = useState(productData.relatedProducts || []);
   const [reviews, setReviews] = useState([]);
 
   const [cart, setCartState] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [loading, setLoading] = useState(false); // Already have data, no need to load
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const [sizes, setSizes] = useState([]);
   const [colors, setColors] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isNavigating, setIsNavigating] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Initialize sizes and colors from product data
-    const parsedSizes = JSON.parse(product.sizes || '[]');
-    const parsedColors = JSON.parse(product.colors || '[]');
+    if (product) {
+      const parsedSizes = JSON.parse(product.sizes || '[]');
+      const parsedColors = JSON.parse(product.colors || '[]');
 
-    setSizes(Array.isArray(parsedSizes) ? parsedSizes : []);
-    setColors(Array.isArray(parsedColors) ? parsedColors : []);
+      setSizes(Array.isArray(parsedSizes) ? parsedSizes : []);
+      setColors(Array.isArray(parsedColors) ? parsedColors : []);
+    }
   }, [product]);
 
   useEffect(() => {
-    // Fetch reviews based on product slug
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(`/api/getreviews?productSlug=${product.slug}`);
+        const response = await axios.get(`/api/getreviews?productId=${product.id}`);
         setReviews(response.data.reviews);
       } catch (error) {
         console.error('Error fetching reviews:', error);
       }
     };
 
-    if (product.slug) {
+    if (product) {
       fetchReviews();
     }
-  }, [product.slug]);
+  }, [product]);
 
   const handleAddToCart = () => {
     if (quantity > product.stock) {
@@ -107,10 +108,7 @@ const ProductPage = ({ productData }) => {
   };
 
   const calculateOriginalPrice = (price, discount) => {
-    if (typeof price === 'number' && typeof discount === 'number') {
-      return price - price * (discount / 100);
-    }
-    return price;
+    return price - price * (discount / 100);
   };
 
   const getImageUrl = (url) => {
@@ -134,9 +132,9 @@ const ProductPage = ({ productData }) => {
   };
 
   return (
-    <div className="container mx-auto px-4">
+    <div className="container pt-4 mx-auto px-4">
       <ToastContainer />
-      {isNavigating && (
+      {loading && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <ThreeDots
             height="80"
@@ -195,7 +193,7 @@ const ProductPage = ({ productData }) => {
         </div>
 
         {/* Product Info and Add to Cart */}
-        <div className="w-full lg:w-2/5 h-full flex flex-col">
+        <div className="w-full lg:w-2/5 mt-4 h-full flex flex-col">
           <h2 className="text-2xl font-bold mb-4">{product.name.toUpperCase()}</h2>
 
           <div className="flex items-center mb-4">
@@ -259,16 +257,8 @@ const ProductPage = ({ productData }) => {
                     onClick={() => setSelectedSize(size.label)}
                     disabled={size.stock === 0}
                     className={`w-10 h-10 border text-center flex items-center justify-center cursor-pointer
-                      ${
-                        selectedSize === size.label
-                          ? 'border-black border-[2px]'
-                          : 'border-gray-300'
-                      } 
-                      ${
-                        size.stock === 0
-                          ? 'line-through cursor-not-allowed text-gray-400'
-                          : 'hover:border-black'
-                      }`}
+                      ${selectedSize === size.label ? 'border-black border-[2px]' : 'border-gray-300'} 
+                      ${size.stock === 0 ? 'line-through cursor-not-allowed text-gray-400' : 'hover:border-black'}`}
                   >
                     {size.label}
                   </button>
@@ -371,9 +361,9 @@ const ProductPage = ({ productData }) => {
               );
               return (
                 <div
-                  key={relatedProduct.slug} // Changed from 'id' to 'slug'
+                  key={relatedProduct.slug}
                   className="bg-white shadow-md rounded-sm cursor-pointer border border-gray-300 relative min-h-[320px] w-full"
-                  onClick={() => router.push(`/customer/pages/products/${relatedProduct.slug}`)} // Changed from 'id' to 'slug'
+                  onClick={() => router.push(`/customer/pages/products/${relatedProduct.slug}`)}
                 >
                   {relatedProduct.discount && (
                     <div className="absolute z-40 top-0 left-0 bg-red-100 text-red-600 font-normal text-sm px-1 py-0.5">
@@ -398,15 +388,6 @@ const ProductPage = ({ productData }) => {
                         No Image
                       </div>
                     )}
-                    <button
-                      className="absolute bottom-2 right-2 bg-teal-500 text-white h-8 w-8 flex justify-center items-center rounded-full shadow-lg hover:bg-teal-600 transition-colors duration-300"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/customer/pages/products/${relatedProduct.slug}`); // Changed from 'id' to 'slug'
-                      }}
-                    >
-                      <span className="text-xl font-bold leading-none">+</span>
-                    </button>
                   </div>
 
                   <div className="grid grid-cols-2 px-2">
@@ -435,7 +416,7 @@ const ProductPage = ({ productData }) => {
                       WebkitLineClamp: 2,
                       maxHeight: '3em',
                     }}
-                    onClick={() => router.push(`/customer/pages/products/${relatedProduct.slug}`)} // Changed from 'id' to 'slug'
+                    onClick={() => router.push(`/customer/pages/products/${relatedProduct.slug}`)}
                   >
                     {relatedProduct.name.toUpperCase()}
                   </h3>
@@ -482,10 +463,10 @@ const ProductPage = ({ productData }) => {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {relatedProducts.map((relatedProduct) => (
               <div
-                key={relatedProduct.slug} // Changed from 'id' to 'slug'
+                key={relatedProduct.slug}
                 className="flex flex-col items-center w-32 cursor-pointer hover:shadow-lg transition-shadow duration-200"
                 onClick={() => {
-                  router.push(`/customer/pages/products/${relatedProduct.slug}`); // Changed from 'id' to 'slug'
+                  router.push(`/customer/pages/products/${relatedProduct.slug}`);
                   setIsModalOpen(false);
                 }}
               >
