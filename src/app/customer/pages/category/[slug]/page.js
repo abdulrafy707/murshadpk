@@ -3,11 +3,12 @@ import CategoryPage from './CategoryPage'; // Your CategoryPage component
 import Head from 'next/head';
 
 // Fetch category data server-side using async function
-async function getCategoryData(id) {
+async function getCategoryData(slug) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
   try {
-    const res = await fetch(`${apiUrl}/api/categories/${id}`, { cache: 'no-store' });
+    console.log("Fetching category data for slug:", slug); // Debugging log
+    const res = await fetch(`${apiUrl}/api/categories/${slug}`, { cache: 'no-store' });
 
     if (!res.ok) {
       console.error('Error fetching category data:', res.statusText);
@@ -15,6 +16,7 @@ async function getCategoryData(id) {
     }
 
     const data = await res.json();
+    console.log('API response:', data); // Log the entire response
 
     if (!data || !data.data) {
       console.error('Category data is missing in the response');
@@ -28,10 +30,11 @@ async function getCategoryData(id) {
   }
 }
 
-// Metadata generation
+// Metadata generation for SEO
 export async function generateMetadata({ params }) {
-  const { id } = params;
-  const category = await getCategoryData(id);
+  const { slug } = params;
+  console.log("Generating metadata for slug:", slug); // Debugging log
+  const category = await getCategoryData(slug);
 
   if (!category) {
     return {
@@ -49,10 +52,11 @@ export async function generateMetadata({ params }) {
 }
 
 const CategoryDetailsPage = async ({ params }) => {
-  const { id } = params;
+  const { slug } = params;
+  console.log("Rendering category details page for slug:", slug); // Debugging log
 
   // Fetch the category data
-  const category = await getCategoryData(id);
+  const category = await getCategoryData(slug);
 
   // Handle category not found
   if (!category) {

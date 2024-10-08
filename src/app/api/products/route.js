@@ -1,60 +1,93 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../util/prisma';
 
+
 export async function POST(request) {
   try {
-    const data = await request.json();
     const {
       name,
+      slug,
       description,
       price,
       stock,
-      subcategoryId,
+      subcategorySlug,
       colors,
       sizes,
-      images,
       discount,
       isTopRated,
-      meta_title,           // New field
-      meta_description,     // New field
-      meta_keywords         // New field
-    } = data;
+      images, // Now it's a string or array of filenames
+      meta_title,
+      meta_description,
+      meta_keywords,
+    } = await request.json();
 
-    if (!images || images.length === 0) {
-      throw new Error('No images provided');
+    // Validate required fields
+    if (!name || !slug || !description || !price || stock === undefined || !subcategorySlug) {
+      return NextResponse.json({
+        status: false,
+        message: "Missing required fields.",
+      }, { status: 400 });
     }
 
+    // Check for existing slug
+    const existingProduct = await prisma.product.findUnique({
+      where: { slug },
+    });
+
+    if (existingProduct) {
+      return NextResponse.json({
+        status: false,
+        message: "Product with this slug already exists.",
+      }, { status: 400 });
+    }
+
+    // Verify that subcategorySlug is not null or empty
+    if (!subcategorySlug) {
+      return NextResponse.json({
+        status: false,
+        message: "Subcategory slug is required.",
+      }, { status: 400 });
+    }
+
+    // Handle images as a string or array of strings
+    let imagesData;
+    if (images) {
+      // If it's a string, convert to an array for consistency
+      const imageArray = Array.isArray(images) ? images : [images];
+      imagesData = {
+        create: imageArray.map(filename => ({ url: filename }))
+      };
+    }
+
+    // Proceed to create the new product
     const newProduct = await prisma.product.create({
       data: {
         name,
+        slug,
         description,
         price: parseFloat(price),
-        stock: parseInt(stock),
-        
-        subcategoryId: parseInt(subcategoryId),
-        colors,
-        sizes,
-        discount: discount ? parseFloat(discount) : null,  // Parse the discount as a float
-        isTopRated: isTopRated || false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        images: {
-          create: images.map((url) => ({ url })),
-        },
+        stock: parseInt(stock, 10),
+        // Connect to the subcategory using the slug
+        subcategory: { connect: { slug: subcategorySlug } },
+        colors: colors ? JSON.stringify(colors) : null,
+        sizes: sizes ? JSON.stringify(sizes) : null,
+        discount: discount ? parseFloat(discount) : null,
+        isTopRated: Boolean(isTopRated),
+        images: imagesData, // Create images based on filenames
         meta_title,
         meta_description,
-        meta_keywords
+        meta_keywords,
       },
       include: {
-        images: true,
-      },
+        images: true, // Optional: Include images in the response
+      }
     });
 
     return NextResponse.json({
-      status: 200,
+      status: true,
       message: 'Product created successfully',
       data: newProduct,
-    });
+    }, { status: 201 });
   } catch (error) {
     console.error('Error creating product:', error);
     return NextResponse.json(
@@ -67,6 +100,11 @@ export async function POST(request) {
     );
   }
 }
+
+
+
+
+
 
 
 // export async function GET() {

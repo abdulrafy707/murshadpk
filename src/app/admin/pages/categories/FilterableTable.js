@@ -1,31 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/24/outline';
 
-const FilterableTable = ({ categories, fetchCategories }) => {
+const FilterableTable = () => {
   const [filter, setFilter] = useState('');
-  const [filteredData, setFilteredData] = useState(categories || []);
+  const [filteredData, setFilteredData] = useState([]);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [newCategory, setNewCategory] = useState({
-    id: null,
+    slug: '',  // Allow user to manually enter slug
     name: '',
     imageUrl: '',
-    meta_title: '',           // Add meta title field
-    meta_description: '',     // Add meta description field
-    meta_keywords: '',        // Add meta keywords field
+    meta_title: '',
+    meta_description: '',
+    meta_keywords: '',
   });
   const [image, setImage] = useState(null);
 
   useEffect(() => {
-    setFilteredData(
-      (categories || []).filter((item) =>
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/categories');
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories');
+      }
+      const data = await response.json();
+      setFilteredData(data.data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    setFilteredData((prevData) =>
+      (prevData || []).filter((item) =>
         Object.values(item).some((val) =>
           String(val).toLowerCase().includes(filter.toLowerCase())
         )
       )
     );
-  }, [filter, categories]);
+  }, [filter]);
 
   const handleAddNewItem = async () => {
     setIsModalOpen(false);
@@ -35,7 +54,7 @@ const FilterableTable = ({ categories, fetchCategories }) => {
 
       if (image) {
         const imageBase64 = await convertToBase64(image);
-        const response = await fetch(' https://murshadpkdata.advanceaitool.com/uploadImage.php', {
+        const response = await fetch('https://murshadpkdata.advanceaitool.com/uploadImage.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -56,8 +75,8 @@ const FilterableTable = ({ categories, fetchCategories }) => {
         imageUrl,
       };
 
-      const response = newCategory.id
-        ? await fetch(`/api/categories/${newCategory.id}`, {
+      const response = newCategory.slug && filteredData.some(item => item.slug === newCategory.slug)
+        ? await fetch(`/api/categories/${newCategory.slug}`, {   // Use slug for updates
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -80,31 +99,36 @@ const FilterableTable = ({ categories, fetchCategories }) => {
       console.log('Response from server:', responseData);
       setIsModalOpen(false);
       setNewCategory({
-        id: null,
+        slug: '',
         name: '',
         imageUrl: '',
-        meta_title: '',           // Reset meta fields after submission
+        meta_title: '',
         meta_description: '',
         meta_keywords: '',
       });
       setImage(null);
+      fetchCategories(); // Refresh the data after adding or updating
     } catch (error) {
       console.error('Error adding or updating item:', error);
     }
-    fetchCategories(); // Refresh the data after adding or updating
     setIsLoading(false);
   };
 
-  const handleDeleteItem = async (id) => {
+  const handleDeleteItem = async (slug) => {
     setIsLoading(true);
     try {
-      await fetch(`/api/categories/${id}`, {
+      const response = await fetch(`/api/categories/${slug}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
       });
-      fetchCategories(); // Refresh the data after deleting
+  
+      if (!response.ok) {
+        throw new Error(`Failed to delete category with slug: ${slug}`);
+      }
+  
+      fetchCategories(); // Refresh the categories after deletion
     } catch (error) {
       console.error('Error deleting item:', error);
     }
@@ -113,10 +137,10 @@ const FilterableTable = ({ categories, fetchCategories }) => {
 
   const handleEditItem = (item) => {
     setNewCategory({
-      ...item,
-      image: null, // Reset image for edit
-      imageUrl: item.imageUrl, // Existing image URL
-      meta_title: item.meta_title || '',           // Pre-fill existing meta fields
+      slug: item.slug,           // Use slug to identify the category
+      name: item.name,           // Pre-fill the name
+      imageUrl: item.imageUrl,   // Existing image URL
+      meta_title: item.meta_title || '',    // Pre-fill existing meta fields
       meta_description: item.meta_description || '',
       meta_keywords: item.meta_keywords || '',
     });
@@ -153,10 +177,10 @@ const FilterableTable = ({ categories, fetchCategories }) => {
               className="text-gray-600 hover:text-gray-900 focus:outline-none"
               onClick={() => {
                 setNewCategory({
-                  id: null,
+                  slug: '',  // Allow user to manually enter the slug
                   name: '',
                   imageUrl: '',
-                  meta_title: '',           // Reset meta fields when adding a new category
+                  meta_title: '',
                   meta_description: '',
                   meta_keywords: '',
                 });
@@ -182,8 +206,9 @@ const FilterableTable = ({ categories, fetchCategories }) => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
+                
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated At</th>
@@ -193,11 +218,12 @@ const FilterableTable = ({ categories, fetchCategories }) => {
             <tbody className="bg-white divide-y divide-gray-200">
               {Array.isArray(filteredData) && filteredData.length > 0 ? (
                 filteredData.map((item, index) => (
-                  <tr key={item.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.id}</td>
+                  <tr key={item.slug} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.imageUrl && <img src={` https://murshadpkdata.advanceaitool.com/uploads/${item.imageUrl}`} alt={item.name} className="w-16 h-16 object-cover" />}
+                      {item.imageUrl && <img src={`https://murshadpkdata.advanceaitool.com/uploads/${item.imageUrl}`} alt={item.name} className="w-16 h-16 object-cover" />}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.slug}</td>
+                    
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.name}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(item.createdAt).toLocaleString()}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(item.updatedAt).toLocaleString()}</td>
@@ -209,7 +235,7 @@ const FilterableTable = ({ categories, fetchCategories }) => {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeleteItem(item.id)}
+                        onClick={() => handleDeleteItem(item.slug)}  // Use slug instead of id
                         className="text-red-600 hover:text-red-900 transition duration-150 ease-in-out"
                       >
                         Delete
@@ -229,8 +255,8 @@ const FilterableTable = ({ categories, fetchCategories }) => {
 
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-4 w-[700px] rounded shadow-lg">
-            <h2 className="text-xl mb-4">{newCategory.id ? 'Edit Category' : 'Add New Category'}</h2>
+          <div className="bg-white p-4 w-[700px] rounded shadow-lg max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl mb-4">{newCategory.slug ? 'Edit Category' : 'Add New Category'}</h2>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">Name</label>
               <input
@@ -240,10 +266,25 @@ const FilterableTable = ({ categories, fetchCategories }) => {
                 className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
+            {/* Slug Input Field */}
+            <div className="mb-4">
+  <label className="block text-sm font-medium text-gray-700">Slug</label>
+  <input
+    type="text"
+    value={newCategory.slug}
+    onChange={(e) => {
+      const slugValue = e.target.value.replace(/\s+/g, '-'); // Replace spaces with dashes
+      setNewCategory({ ...newCategory, slug: slugValue });
+    }}
+    className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+</div>
+
             {newCategory.imageUrl && (
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">Current Image</label>
-                <img src={` https://murshadpkdata.advanceaitool.com/uploads/${newCategory.imageUrl}`} alt={newCategory.name} className="w-32 h-32 object-cover mb-2" />
+                <img src={`https://murshadpkdata.advanceaitool.com/uploads/${newCategory.imageUrl}`} alt={newCategory.name} className="w-32 h-32 object-cover mb-2" />
               </div>
             )}
             <div className="mb-4">
@@ -254,7 +295,7 @@ const FilterableTable = ({ categories, fetchCategories }) => {
                 className="mt-1 p-2 border border-gray-300 rounded w-full"
               />
             </div>
-            
+
             {/* Meta Fields */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">Meta Title</label>
@@ -284,7 +325,7 @@ const FilterableTable = ({ categories, fetchCategories }) => {
                 className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            
+
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -296,7 +337,7 @@ const FilterableTable = ({ categories, fetchCategories }) => {
                 onClick={handleAddNewItem}
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
               >
-                {newCategory.id ? 'Update' : 'Add'}
+                {filteredData.some(item => item.slug === newCategory.slug) ? 'Update' : 'Add'}
               </button>
             </div>
           </div>

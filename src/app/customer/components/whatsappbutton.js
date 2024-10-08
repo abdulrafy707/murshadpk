@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { removeFromCart, updateQuantity, setCart } from '@/app/store/cartSlice';
 
 export default function WhatsAppButton() {
-  const phoneNumber = '923310356111';
+  const phoneNumber = '923356768338';
   const router = useRouter();
   const dispatch = useDispatch();
   const cart = useSelector(state => state.cart.items);

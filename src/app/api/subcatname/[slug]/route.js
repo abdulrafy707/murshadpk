@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import prisma from '@/app/util/prisma';  // Assuming prisma is setup in your project
 
 export async function GET(request, { params }) {
-  const id = parseInt(params.id, 10);
+  const { slug } = params;  // Extract the slug from the parameters
 
   try {
-    // Fetch the subcategory by ID and only select the 'name'
+    // Fetch the subcategory by slug and only select the 'name'
     const subcategory = await prisma.subcategory.findUnique({
       where: {
-        id: id,
+        slug: slug,  // Use the slug for the lookup
       },
       select: {
         name: true,
@@ -17,7 +17,7 @@ export async function GET(request, { params }) {
 
     if (!subcategory) {
       return NextResponse.json(
-        { message: `Subcategory with ID ${id} not found`, status: false },
+        { message: `Subcategory with slug "${slug}" not found`, status: false },
         { status: 404 }
       );
     }

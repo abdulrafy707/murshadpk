@@ -1,76 +1,79 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../../util/prisma';
 
+// PUT /api/products/[slug]
 export async function PUT(request, { params }) {
   try {
-    const id = parseInt(params.id);
+    const { slug } = params;
     const {
       name,
       description,
       price,
       stock,
-      subcategoryId,
+      subcategorySlug,
       colors,
       sizes,
-      images,
       discount,
       isTopRated = false,
-      meta_title,          // New field for meta title
-      meta_description,    // New field for meta description
-      meta_keywords        // New field for meta keywords
+      images, // Array of image filenames
+      meta_title,
+      meta_description,
+      meta_keywords,
     } = await request.json();
 
-    // Ensure stock is a valid integer
-    const validStock = Number.isInteger(stock) ? stock : parseInt(stock, 10);
+    // Ensure that images are passed as an array of filenames (without URLs)
+    const imageFilenames = images.map((filename) =>
+      filename.includes('/') ? filename.split('/').pop() : filename
+    );
 
-    // Use toFixed to round the discount to two decimal places before saving
-    const roundedDiscount = discount ? parseFloat(discount.toFixed(2)) : null;
+    console.log("Image filenames being processed:", imageFilenames);
 
-    // Update the product details
+    // Validate image filenames
+    if (!Array.isArray(imageFilenames) || imageFilenames.some(filename => typeof filename !== 'string')) {
+      throw new Error("Each image must be a valid filename string.");
+    }
+
+    // Continue with updating the product using filenames
     const updatedProduct = await prisma.product.update({
-      where: { id },
+      where: { slug },
       data: {
         name,
         description,
         price: parseFloat(price),
-        stock: validStock, // Ensure valid integer stock
-        subcategoryId: subcategoryId ? parseInt(subcategoryId) : null,
-        colors: colors ? JSON.stringify(colors) : null,
-        sizes: sizes ? JSON.stringify(sizes) : null,
-        discount: roundedDiscount, // Save the rounded discount value
+        stock: parseInt(stock, 10),
+        subcategorySlug,
+        colors: JSON.stringify(colors),
+        sizes: JSON.stringify(sizes),
+        discount: discount ? parseFloat(discount) : null,
         isTopRated,
+        meta_title,
+        meta_description,
+        meta_keywords,
+        images: {
+          deleteMany: {}, // Delete existing images
+          create: imageFilenames.map((filename) => ({ url: filename })), // Store only filenames
+        },
         updatedAt: new Date(),
-        meta_title,            // Save meta_title
-        meta_description,      // Save meta_description
-        meta_keywords          // Save meta_keywords
       },
     });
 
-    // Handle images
-    if (images && images.length > 0) {
-      await prisma.image.deleteMany({ where: { productId: id } });
-      await prisma.image.createMany({
-        data: images.filter(Boolean).map((url) => ({ url, productId: id })),
-      });
-    }
-
-    return NextResponse.json({
+    return new Response(JSON.stringify({
       status: 200,
       message: 'Product updated successfully',
       data: updatedProduct,
-    });
+    }), { status: 200 });
+
   } catch (error) {
-    console.error('Error updating product:', error);
-    return NextResponse.json(
-      {
-        message: 'Failed to update product',
-        status: false,
-        error: error.message,
-      },
-      { status: 500 }
-    );
+    console.error('Error updating product:', error.message);
+    return new Response(JSON.stringify({
+      message: 'Failed to update product',
+      error: error.message,
+    }), { status: 500 });
   }
 }
+
+
+
 
 
 
@@ -80,14 +83,62 @@ export async function PUT(request, { params }) {
 
 
 export async function GET(request, { params }) {
-  const { id } = params;
+  const { slug } = params;
+
   try {
-    // Fetch the product by ID
+    // Fetch the product by slug
     const product = await prisma.product.findUnique({
-      where: { id: parseInt(id) },
+      where: { slug },
+      include: {
+        images: true, // Include related images
+        subcategory: {
+          include: {
+            category: true, // Include related category if needed
+          },
+        },
+      },
+    });
+
+    if (!product) {
+      return NextResponse.json(
+        { message: 'Product not found.' },
+        { status: 404 }
+      );
+    }
+
+    // Fetch related products (customize the logic as needed)
+    const relatedProducts = await prisma.product.findMany({
+      where: {
+        subcategorySlug: product.subcategorySlug,
+        NOT: { slug: product.slug }, // Exclude the current product
+      },
+      take: 6, // Limit to 6 related products
       include: {
         images: true,
       },
+    });
+
+    return NextResponse.json(
+      { data: { product, relatedProducts } },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    return NextResponse.json(
+      { message: 'Internal Server Error' },
+      { status: 500 }
+    );
+  }
+}
+
+
+export async function DELETE(request, { params }) {
+  try {
+    const { slug } = params;  // Use slug instead of id
+
+    // Fetch the product by slug to get the id
+    const product = await prisma.product.findUnique({
+      where: { slug },
     });
 
     if (!product) {
@@ -97,55 +148,12 @@ export async function GET(request, { params }) {
       }, { status: 404 });
     }
 
-    // Fetch related products based on subcategoryId
-    const relatedProducts = await prisma.product.findMany({
-      where: {
-        subcategoryId: product.subcategoryId,
-        id: {
-          not: parseInt(id), // Exclude the current product
-        },
-      },
-      include: {
-        images: true,
-      },
-      take: 4, // Limit the number of related products
-    });
+    await prisma.image.deleteMany({ where: { productId: product.id } });
+    await prisma.product.delete({ where: { slug } });
 
     return NextResponse.json({
-      status: 200,
-      message: 'Product fetched successfully',
-      data: {
-        product,
-        relatedProducts,
-      },
+      message: 'Product and related data deleted successfully',
     });
-  } catch (error) {
-    console.error('Error fetching product:', error);
-    return NextResponse.json(
-      {
-        message: 'Failed to fetch product',
-        status: false,
-        error: error.message,
-      },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(request, { params }) {
-  try {
-    const id = parseInt(params.id);
-
-    // First, delete related order items
-    await prisma.$executeRaw`DELETE FROM OrderItem WHERE productId = ${id}`;
-
-    // Then delete related images
-    await prisma.$executeRaw`DELETE FROM Image WHERE productId = ${id}`;
-
-    // Now delete the product
-    const deletedProduct = await prisma.$executeRaw`DELETE FROM Product WHERE id = ${id}`;
-
-    return NextResponse.json({ message: 'Product and related data deleted successfully', deletedProduct });
   } catch (error) {
     console.error('Error deleting product:', error);
     return NextResponse.json(
@@ -158,6 +166,7 @@ export async function DELETE(request, { params }) {
     );
   }
 }
+
 
 
 // export const config = {

@@ -12,6 +12,7 @@ export async function GET(request, { params }) {
     const products = await prisma.$queryRaw`
       SELECT 
         Product.id, 
+        Product.slug,
         Product.name, 
         Product.description, 
         Product.price, 

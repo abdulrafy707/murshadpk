@@ -1,41 +1,10 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../util/prisma';
-
-export async function POST(request) {
-  try {
-    const data = await request.json();
-    const { name, categoryId, imageUrl, meta_title, meta_description, meta_keywords } = data;
-
-    const newSubcategory = await prisma.subcategory.create({
-      data: {
-        name,
-        categoryId: parseInt(categoryId, 10),
-        imageUrl,
-        meta_title, // Save meta title
-        meta_description, // Save meta description
-        meta_keywords, // Save meta keywords
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    });
-
-    return NextResponse.json({
-      status: 200,
-      message: 'Subcategory created successfully',
-      data: newSubcategory,
-    });
-  } catch (error) {
-    console.error('Error creating subcategory:', error);
-    return NextResponse.json(
-      {
-        message: 'Failed to create subcategory',
-        status: false,
-        error: error.message,
-      },
-      { status: 500 }
-    );
-  }
+const generateSlug = (name) => {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 }
+
+
 
 
 // export async function GET(request) {
@@ -102,7 +71,7 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json(subcategories);
+    return NextResponse.json({ status: true, data: subcategories });
   } catch (error) {
     console.error('Error fetching subcategories:', error);
     return NextResponse.json(
@@ -115,6 +84,7 @@ export async function GET() {
     );
   }
 }
+
 
 
 // export async function GET() {
@@ -149,35 +119,33 @@ export async function GET() {
 
 
 
-export async function PUT(request, { params }) {
+export async function POST(request) {
   try {
-    const id = parseInt(params.id, 10);
-    const data = await request.json();
-    const { name, categoryId, imageUrl, meta_title, meta_description, meta_keywords } = data;
+    const { name, categoryId, imageUrl, meta_title, meta_description, meta_keywords } = await request.json();
+    const slug = generateSlug(name); // Generate slug from the name
 
-    const updatedSubcategory = await prisma.subcategory.update({
-      where: { id },
+    const newSubcategory = await prisma.subcategory.create({
       data: {
         name,
+        slug,  // Save slug
         categoryId: parseInt(categoryId, 10),
         imageUrl,
-        meta_title, // Update meta title
-        meta_description, // Update meta description
-        meta_keywords, // Update meta keywords
-        updatedAt: new Date(),
+        meta_title,
+        meta_description,
+        meta_keywords,
       },
     });
 
     return NextResponse.json({
-      status: 200,
-      message: 'Subcategory updated successfully',
-      data: updatedSubcategory,
+      status: true,
+      message: 'Subcategory created successfully',
+      data: newSubcategory,
     });
   } catch (error) {
-    console.error('Error updating subcategory:', error);
+    console.error('Error creating subcategory:', error);
     return NextResponse.json(
       {
-        message: 'Failed to update subcategory',
+        message: 'Failed to create subcategory',
         status: false,
         error: error.message,
       },

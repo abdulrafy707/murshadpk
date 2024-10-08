@@ -1,26 +1,21 @@
 import { NextResponse } from 'next/server';
-
 import prisma from '../../../util/prisma';
-// Get category by ID
 
+// Get category by id (GET /api/categories/[id])
 export async function GET(request, { params }) {
+  const { slug } = params;  // Use slug instead of id
+
+  if (!slug) {
+    return NextResponse.json(
+      { message: 'Slug is required', status: false },
+      { status: 400 }
+    );
+  }
+
   try {
-    const { searchParams } = new URL(request.url);
-    const id = params?.id ? parseInt(params.id, 10) : parseInt(searchParams.get('categoryId'), 10);
-
-    if (!id) {
-      return NextResponse.json(
-        { message: 'Category ID is required', status: false },
-        { status: 400 }
-      );
-    }
-
-    // Fetch the specific category by its ID, including its subcategories
+    // Fetch the category by its slug
     const category = await prisma.category.findUnique({
-      where: { id },
-      include: {
-        subcategories: true,
-      },
+      where: { slug }, // Query using slug instead of id
     });
 
     if (!category) {
@@ -30,7 +25,6 @@ export async function GET(request, { params }) {
       );
     }
 
-    // Return the category data
     return NextResponse.json({ status: true, data: category });
   } catch (error) {
     console.error('Error fetching category:', error);
@@ -42,16 +36,37 @@ export async function GET(request, { params }) {
 }
 
 
-
-// Update an existing category
-// Update an existing category, including meta fields
 export async function PUT(request, { params }) {
   try {
-    const id = parseInt(params.id, 10);
+    // Extract slug from params
+    const { slug } = params;
+
+    // If slug is undefined, return an error
+    if (!slug) {
+      return NextResponse.json(
+        { message: 'Slug is required', status: false },
+        { status: 400 }
+      );
+    }
+
+    // Extract the request body data
     const { name, imageUrl, meta_title, meta_description, meta_keywords } = await request.json();
 
+    // Check if the category with the given slug exists
+    const existingCategory = await prisma.category.findUnique({
+      where: { slug },
+    });
+
+    if (!existingCategory) {
+      return NextResponse.json(
+        { message: 'Category not found', status: false },
+        { status: 404 }
+      );
+    }
+
+    // Update the category with the provided slug
     const updatedCategory = await prisma.category.update({
-      where: { id },
+      where: { slug },  // Ensure that the slug is passed to the 'where' clause
       data: {
         name,
         imageUrl,
@@ -75,14 +90,34 @@ export async function PUT(request, { params }) {
   }
 }
 
-
-// Delete a category
+// Delete a category by slug (DELETE /api/categories/[slug])
 export async function DELETE(request, { params }) {
   try {
-    const { id } = params;
-    await prisma.category.delete({
-      where: { id: parseInt(id) },
+    const { slug } = params;
+
+    if (!slug) {
+      return NextResponse.json(
+        { message: 'Slug is required', status: false },
+        { status: 400 }
+      );
+    }
+
+    // Check if the category with the given slug exists
+    const existingCategory = await prisma.category.findUnique({
+      where: { slug },
     });
+
+    if (!existingCategory) {
+      return NextResponse.json(
+        { message: 'Category not found', status: false },
+        { status: 404 }
+      );
+    }
+
+    await prisma.category.delete({
+      where: { slug },  // Ensure slug is used for deletion
+    });
+
     return NextResponse.json({ message: 'Category deleted successfully' });
   } catch (error) {
     console.error('Error deleting category:', error);

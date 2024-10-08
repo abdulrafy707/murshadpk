@@ -30,34 +30,36 @@ model User {
 
 
 model Category {
-  id            Int           @id @default(autoincrement())
-  name          String
-  imageUrl      String?        // Making imageUrl optional temporarily
-  subcategories Subcategory[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-
-  // New SEO fields
+  id               Int           @id @default(autoincrement())
+  name             String
+  slug             String         @unique // Slug field to store the unique URL-friendly name
+  imageUrl         String?
+  subcategories    Subcategory[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
   meta_title       String?
   meta_description String?
   meta_keywords    String?
 }
+
 
 model Subcategory {
-  id          Int          @id @default(autoincrement())
-  name        String
-  imageUrl    String?  
-  categoryId  Int
-  category    Category     @relation(fields: [categoryId], references: [id])
-  products    Product[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id               Int          @id @default(autoincrement())
+  name             String
+  slug             String        @unique // Add slug field for SEO-friendly URLs
+  imageUrl         String?  
+  categoryId       Int
+  category         Category     @relation(fields: [categoryId], references: [id])
+  products         Product[]
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
-  // New SEO fields
+  // SEO fields
   meta_title       String?
   meta_description String?
   meta_keywords    String?
 }
+
 
 model Size {
   id    Int    @id @default(autoincrement())
@@ -73,22 +75,23 @@ model Color {
 
 
 model Product {
-  id          Int          @id @default(autoincrement())
-  name        String
-  description String
-  discount    Float?
-  isTopRated  Boolean?
-  price       Float
-  stock       Int
-  subcategoryId Int
-  subcategory Subcategory  @relation(fields: [subcategoryId], references: [id])
-  images      Image[]      // Relation to images
-  colors      Json?        // Making colors optional
-  sizes       Json?        // Making sizes optional
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  orderItems  OrderItem[]
-  reviews     Review[]
+  id              Int          @id @default(autoincrement())
+  name            String
+  slug            String       @unique  // Adding slug field with uniqueness constraint
+  description     String
+  discount        Float?
+  isTopRated      Boolean?
+  price           Float
+  stock           Int
+  subcategorySlug String        // Change from subcategoryId to subcategorySlug
+  subcategory     Subcategory   @relation(fields: [subcategorySlug], references: [slug]) // Reference by slug
+  images          Image[]      // Relation to images
+  colors          Json?        // Making colors optional
+  sizes           Json?        // Making sizes optional
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  orderItems      OrderItem[]
+  reviews         Review[]
 
   meta_title       String?
   meta_description String?
@@ -206,12 +209,15 @@ enum OrderStatus {
 
 
 model Review {
-  id          Int      @id @default(autoincrement())
-  productId   Int      // Foreign key linking the review to a product
-  product     Product  @relation(fields: [productId], references: [id])
-  reviewer    String   // Name of the reviewer
-  rating      Int      // Rating, e.g., from 1 to 5 stars
-  comment     String?  // Optional review comment
-  createdAt   DateTime @default(now()) // Date the review was created
+  id        Int      @id @default(autoincrement())
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  reviewer  String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
+
 

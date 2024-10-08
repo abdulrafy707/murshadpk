@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { toast, ToastContainer } from 'react-toastify';
@@ -12,63 +12,50 @@ import { ThreeDots } from 'react-loader-spinner';
 import Modal from 'react-modal';
 import { FiMinus, FiPlus } from 'react-icons/fi';
 
-const ProductPage = () => {
-  const { id } = useParams();
+const ProductPage = ({ productData }) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const [product, setProduct] = useState(null);
-  const [relatedProducts, setRelatedProducts] = useState([]);
-  const [reviews, setReviews] = useState([]); // Add state to store reviews
+  const [product, setProduct] = useState(productData);
+  const [relatedProducts, setRelatedProducts] = useState(productData.relatedProducts || []);
+  const [reviews, setReviews] = useState([]);
 
   const [cart, setCartState] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Already have data, no need to load
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const [sizes, setSizes] = useState([]);
   const [colors, setColors] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isNavigating, setIsNavigating] = useState(false); // For optional loading indicator
+  const [isNavigating, setIsNavigating] = useState(false);
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await axios.get(`/api/products/${id}`);
-        const { product, relatedProducts } = response.data.data;
+    // Initialize sizes and colors from product data
+    const parsedSizes = JSON.parse(product.sizes || '[]');
+    const parsedColors = JSON.parse(product.colors || '[]');
 
-        const parsedSizes = JSON.parse(product.sizes || '[]');
-        const parsedColors = JSON.parse(product.colors || '[]');
+    setSizes(Array.isArray(parsedSizes) ? parsedSizes : []);
+    setColors(Array.isArray(parsedColors) ? parsedColors : []);
+  }, [product]);
 
-        setSizes(Array.isArray(parsedSizes) ? parsedSizes : []);
-        setColors(Array.isArray(parsedColors) ? parsedColors : []);
-
-        setProduct(product);
-        setRelatedProducts(relatedProducts);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching product:', error);
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
+    // Fetch reviews based on product slug
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(`/api/getreviews?productId=${id}`);
-        setReviews(response.data.reviews); // Assuming the API returns reviews in this structure
+        const response = await axios.get(`/api/getreviews?productSlug=${product.slug}`);
+        setReviews(response.data.reviews);
       } catch (error) {
         console.error('Error fetching reviews:', error);
       }
     };
 
-    if (id) {
-      fetchProduct();
-      fetchReviews(); // Fetch reviews when the product is loaded
+    if (product.slug) {
+      fetchReviews();
     }
-  }, [id]);
+  }, [product.slug]);
 
-  const handleAddToCart = (product) => {
-    // Check if quantity exceeds stock
+  const handleAddToCart = () => {
     if (quantity > product.stock) {
       toast.error(`You cannot add more than ${product.stock} of this item.`);
       return;
@@ -116,12 +103,12 @@ const ProductPage = () => {
     dispatch(setCart(updatedCart));
 
     toast.success('Item added to cart successfully!');
-    setIsModalOpen(true); // Show related products modal
+    setIsModalOpen(true);
   };
 
   const calculateOriginalPrice = (price, discount) => {
     if (typeof price === 'number' && typeof discount === 'number') {
-      return price - (price * (discount / 100));
+      return price - price * (discount / 100);
     }
     return price;
   };
@@ -135,32 +122,18 @@ const ProductPage = () => {
   };
 
   const formatPrice = (price) => {
-    return price.toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    return price.toLocaleString('en-PK', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    router.push('/'); // Navigate to home page when the modal is closed
+    router.push('/');
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <ThreeDots
-          height="80"
-          width="80"
-          radius="9"
-          color="#3498db"
-          ariaLabel="three-dots-loading"
-          visible={true}
-        />
-      </div>
-    );
-  }
-
   return (
-    
-      
     <div className="container mx-auto px-4">
       <ToastContainer />
       {isNavigating && (
@@ -175,49 +148,56 @@ const ProductPage = () => {
           />
         </div>
       )}
-      <div className="flex flex-wrap pt-4 items-stretch min-h-screen">
+      <div className="flex flex-wrap items-stretch min-h-screen">
         {/* Product Images and Details */}
-        <div className="w-full lg:w-3/5 mt-8 mb-8 lg:mb-0 flex flex-col h-full">
-          <div className="flex w-20 flex-col justify-center items-center mr-4">
-            {product.images && product.images.map((image, index) => (
-              <img
-                key={index}
-                src={getImageUrl(image.url)}
-                alt={product.name}
-                className={`w-20 h-20 object-cover mb-2 cursor-pointer ${index === currentImageIndex ? 'opacity-100' : 'opacity-50'}`}
-                onClick={() => handleThumbnailClick(index)}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = '/placeholder-image.png'; // Fallback image
-                }}
-              />
-            ))}
-          </div>
-          <div className="relative w-full pt-8 pl-4 right-0">
-            {product.images && product.images.length > 0 ? (
-              <motion.img
-                key={currentImageIndex}
-                src={getImageUrl(product.images[currentImageIndex].url)}
-                alt={product.name}
-                className="w-full h-[400px] object-contain mb-4 cursor-pointer"
-                transition={{ duration: 0.3 }}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = '/placeholder-image.png'; // Fallback image
-                }}
-              />
-            ) : (
-              <div className="h-48 w-full bg-gray-200 mb-4 rounded flex items-center justify-center text-gray-500">
-                No Image
-              </div>
-            )}
+        <div className="w-full lg:w-3/5 mb-0 flex flex-col lg:flex-row h-full">
+          <div className="flex flex-col lg:flex-row">
+            {/* Image Thumbnails */}
+            <div className="flex w-20 flex-col justify-start items-center mr-4">
+              {product.images &&
+                product.images.map((image, index) => (
+                  <img
+                    key={index}
+                    src={getImageUrl(image.url)}
+                    alt={product.name}
+                    className={`w-20 h-20 object-cover mb-2 cursor-pointer ${
+                      index === currentImageIndex ? 'opacity-100' : 'opacity-50'
+                    }`}
+                    onClick={() => handleThumbnailClick(index)}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/placeholder-image.png';
+                    }}
+                  />
+                ))}
+            </div>
+            {/* Main Image */}
+            <div className="relative w-full pl-4">
+              {product.images && product.images.length > 0 ? (
+                <motion.img
+                  key={currentImageIndex}
+                  src={getImageUrl(product.images[currentImageIndex].url)}
+                  alt={product.name}
+                  className="w-full h-[400px] object-contain mb-4 cursor-pointer"
+                  transition={{ duration: 0.3 }}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/placeholder-image.png';
+                  }}
+                />
+              ) : (
+                <div className="h-48 w-full bg-gray-200 mb-4 rounded flex items-center justify-center text-gray-500">
+                  No Image
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Product Info and Add to Cart */}
         <div className="w-full lg:w-2/5 h-full flex flex-col">
           <h2 className="text-2xl font-bold mb-4">{product.name.toUpperCase()}</h2>
-          
+
           <div className="flex items-center mb-4">
             {product.discount ? (
               <>
@@ -229,17 +209,19 @@ const ProductPage = () => {
                 </span>
               </>
             ) : (
-              <span className="text-red-500 text-2xl">
-                Rs.{formatPrice(product.price)}
-              </span>
+              <span className="text-red-500 text-2xl">Rs.{formatPrice(product.price)}</span>
             )}
           </div>
 
           {/* Stock Info */}
-          {product.stock === 0 && <p className="text-lg font-bold text-red-700 mb-1">Out of Stock</p>}
-          {product.stock > 0 && <p className="text-lg font-bold text-green-700 mb-1">In Stock</p>}
+          {product.stock === 0 && (
+            <p className="text-lg font-bold text-red-700 mb-1">Out of Stock</p>
+          )}
+          {product.stock > 0 && (
+            <p className="text-lg font-bold text-green-700 mb-1">In Stock</p>
+          )}
 
-          {/* Color and Size Selection */}
+          {/* Color Selection */}
           {colors.length > 0 && (
             <div className="mb-4">
               <h3 className="text-md font-medium mb-2">Select Color</h3>
@@ -258,7 +240,11 @@ const ProductPage = () => {
                   </button>
                 ))}
               </div>
-              {selectedColor && <p className="text-sm mt-2">Selected Color: <strong>{selectedColor}</strong></p>}
+              {selectedColor && (
+                <p className="text-sm mt-2">
+                  Selected Color: <strong>{selectedColor}</strong>
+                </p>
+              )}
             </div>
           )}
 
@@ -273,8 +259,16 @@ const ProductPage = () => {
                     onClick={() => setSelectedSize(size.label)}
                     disabled={size.stock === 0}
                     className={`w-10 h-10 border text-center flex items-center justify-center cursor-pointer
-                      ${selectedSize === size.label ? 'border-black border-[2px]' : 'border-gray-300'} 
-                      ${size.stock === 0 ? 'line-through cursor-not-allowed text-gray-400' : 'hover:border-black'}`}
+                      ${
+                        selectedSize === size.label
+                          ? 'border-black border-[2px]'
+                          : 'border-gray-300'
+                      } 
+                      ${
+                        size.stock === 0
+                          ? 'line-through cursor-not-allowed text-gray-400'
+                          : 'hover:border-black'
+                      }`}
                   >
                     {size.label}
                   </button>
@@ -304,61 +298,66 @@ const ProductPage = () => {
           {/* Add to Cart Button */}
           <button
             className="bg-teal-500 text-white py-2 px-4 rounded-md w-full"
-            onClick={() => handleAddToCart(product)}
+            onClick={handleAddToCart}
             disabled={product.stock === 0}
           >
             Add to cart
           </button>
-          {/* <h3 className='text-md font-semibold text-gray-700 mb-4 mt-4'>product.meta_title</h3> */}
 
-          <h3 className='text-md font-semibold text-gray-700 mb-4 mt-4'>Description</h3>
-          <div className="text-gray-500 mb-4" dangerouslySetInnerHTML={{ __html: product.description }}></div>
-        </div>
-      </div>
-      <div className="mt-12">
-  <h3 className="text-2xl font-semibold mb-6">Customer Reviews</h3>
-  {Array.isArray(reviews) && reviews.length > 0 ? (
-    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-6">
-      {reviews.map((review, index) => (
-        <div
-          key={index}
-          className="bg-white shadow-md rounded-lg p-6 flex flex-col justify-between border border-gray-300"
-        >
-          <div>
-            <div className="flex items-center mb-4">
-              <div className="flex items-center justify-center bg-gray-200 rounded-full h-12 w-12 text-lg font-bold">
-                {review.reviewer.charAt(0).toUpperCase()}
-              </div>
-              <div className="ml-4">
-                <h4 className="text-lg font-semibold">{review.reviewer}</h4>
-                <p className="text-sm text-gray-500">
-                  {new Date(review.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center mb-2">
-              {Array(review.rating)
-                .fill()
-                .map((_, i) => (
-                  <span key={i} className="text-yellow-500">&#9733;</span>
+          {/* Product Description */}
+          <h3 className="text-md font-semibold text-gray-700 mb-4 mt-4">Description</h3>
+          <div
+            className="text-gray-500 mb-4"
+            dangerouslySetInnerHTML={{ __html: product.description }}
+          ></div>
+
+          {/* Customer Reviews */}
+          <div className="mt-8">
+            <h3 className="text-2xl font-semibold mb-6">Customer Reviews</h3>
+            {Array.isArray(reviews) && reviews.length > 0 ? (
+              <div className="flex flex-col space-y-4">
+                {reviews.map((review, index) => (
+                  <div
+                    key={index}
+                    className="bg-white shadow-md rounded-lg p-6 flex flex-col border border-gray-300"
+                  >
+                    <div className="flex items-center mb-4">
+                      <div className="flex items-center justify-center bg-gray-200 rounded-full h-12 w-12 text-lg font-bold">
+                        {review.reviewer.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="ml-4">
+                        <h4 className="text-lg font-semibold">{review.reviewer}</h4>
+                        <p className="text-sm text-gray-500">
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center mb-2">
+                      {Array(review.rating)
+                        .fill()
+                        .map((_, i) => (
+                          <span key={i} className="text-yellow-500">
+                            &#9733;
+                          </span>
+                        ))}
+                      {Array(5 - review.rating)
+                        .fill()
+                        .map((_, i) => (
+                          <span key={i} className="text-gray-300">
+                            &#9733;
+                          </span>
+                        ))}
+                    </div>
+                    <p className="text-gray-700">{review.comment}</p>
+                  </div>
                 ))}
-              {Array(5 - review.rating)
-                .fill()
-                .map((_, i) => (
-                  <span key={i} className="text-gray-300">&#9733;</span>
-                ))}
-            </div>
-            <p className="text-gray-700">{review.comment}</p>
+              </div>
+            ) : (
+              <p className="text-gray-500">No reviews yet. Be the first to leave a review!</p>
+            )}
           </div>
         </div>
-      ))}
-    </div>
-  ) : (
-    <p className="text-gray-500">No reviews yet. Be the first to leave a review!</p>
-  )}
-</div>
-
-
+      </div>
 
       {/* Related Products Section */}
       <div className="mt-12 mb-8">
@@ -366,12 +365,15 @@ const ProductPage = () => {
         <div className="rounded grid grid-cols-2 gap-x-2 gap-y-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 px-1 sm:px-4 lg:px-0">
           {relatedProducts.length > 0 ? (
             relatedProducts.map((relatedProduct) => {
-              const originalPrice = calculateOriginalPrice(relatedProduct.price, relatedProduct.discount);
+              const originalPrice = calculateOriginalPrice(
+                relatedProduct.price,
+                relatedProduct.discount
+              );
               return (
                 <div
-                  key={relatedProduct.id}
+                  key={relatedProduct.slug} // Changed from 'id' to 'slug'
                   className="bg-white shadow-md rounded-sm cursor-pointer border border-gray-300 relative min-h-[320px] w-full"
-                  onClick={() => router.push(`/customer/pages/product/${relatedProduct.id}`)}
+                  onClick={() => router.push(`/customer/pages/products/${relatedProduct.slug}`)} // Changed from 'id' to 'slug'
                 >
                   {relatedProduct.discount && (
                     <div className="absolute z-40 top-0 left-0 bg-red-100 text-red-600 font-normal text-sm px-1 py-0.5">
@@ -388,7 +390,7 @@ const ProductPage = () => {
                         transition={{ duration: 0.3 }}
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = '/placeholder-image.png'; // Fallback image
+                          e.target.src = '/placeholder-image.png';
                         }}
                       />
                     ) : (
@@ -399,8 +401,8 @@ const ProductPage = () => {
                     <button
                       className="absolute bottom-2 right-2 bg-teal-500 text-white h-8 w-8 flex justify-center items-center rounded-full shadow-lg hover:bg-teal-600 transition-colors duration-300"
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering the parent onClick
-                        router.push(`/customer/pages/product/${relatedProduct.id}`);
+                        e.stopPropagation();
+                        router.push(`/customer/pages/products/${relatedProduct.slug}`); // Changed from 'id' to 'slug'
                       }}
                     >
                       <span className="text-xl font-bold leading-none">+</span>
@@ -430,10 +432,10 @@ const ProductPage = () => {
                     style={{
                       display: '-webkit-box',
                       WebkitBoxOrient: 'vertical',
-                      WebkitLineClamp: 2, // Limits to 2 lines
-                      maxHeight: '3em', // Approximate height for 2 lines
+                      WebkitLineClamp: 2,
+                      maxHeight: '3em',
                     }}
-                    onClick={() => router.push(`/customer/pages/product/${relatedProduct.id}`)}
+                    onClick={() => router.push(`/customer/pages/products/${relatedProduct.slug}`)} // Changed from 'id' to 'slug'
                   >
                     {relatedProduct.name.toUpperCase()}
                   </h3>
@@ -473,21 +475,18 @@ const ProductPage = () => {
             <h2 className="text-xl font-semibold mb-4">
               Products You May Be Interested In
             </h2>
-            <button
-              className="text-gray-500"
-              onClick={handleCloseModal}
-            >
+            <button className="text-gray-500" onClick={handleCloseModal}>
               ✕
             </button>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {relatedProducts.map((relatedProduct) => (
               <div
-                key={relatedProduct.id}
+                key={relatedProduct.slug} // Changed from 'id' to 'slug'
                 className="flex flex-col items-center w-32 cursor-pointer hover:shadow-lg transition-shadow duration-200"
                 onClick={() => {
-                  router.push(`/customer/pages/products/${relatedProduct.id}`);
-                  setIsModalOpen(false); // Close the modal after navigation
+                  router.push(`/customer/pages/products/${relatedProduct.slug}`); // Changed from 'id' to 'slug'
+                  setIsModalOpen(false);
                 }}
               >
                 <img
@@ -496,13 +495,18 @@ const ProductPage = () => {
                   className="w-32 h-32 object-cover mb-2"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = '/placeholder-image.png'; // Fallback image
+                    e.target.src = '/placeholder-image.png';
                   }}
                 />
-                <p className="text-sm text-gray-800 truncate w-full" title={relatedProduct.name}>
+                <p
+                  className="text-sm text-gray-800 truncate w-full"
+                  title={relatedProduct.name}
+                >
                   {relatedProduct.name}
                 </p>
-                <p className="text-sm text-red-500">Rs.{formatPrice(relatedProduct.price)}</p>
+                <p className="text-sm text-red-500">
+                  Rs.{formatPrice(relatedProduct.price)}
+                </p>
               </div>
             ))}
           </div>
@@ -519,6 +523,3 @@ const ProductPage = () => {
 };
 
 export default ProductPage;
-
-
-

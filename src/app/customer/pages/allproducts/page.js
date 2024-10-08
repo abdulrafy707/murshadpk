@@ -62,8 +62,8 @@ const AllProducts = () => {
     router.push(`/customer/pages/products/${product.id}`);
   };
 
-  const handleProductClick = (id) => {
-    router.push(`/customer/pages/products/${id}`);
+  const handleProductClick = (slug) => {
+    router.push(`/customer/pages/products/${slug}`);
   };
 
   const calculateOriginalPrice = (price, discount) => {
@@ -122,7 +122,7 @@ const AllProducts = () => {
                       className="h-[240px] md:h-[220px] w-full object-cover mb-4 rounded bg-white"
                       whileHover={{ scale: 1.1 }}
                       transition={{ duration: 0.3 }}
-                      onClick={() => handleProductClick(product.id)}
+                      onClick={() => handleProductClick(product.slug)}
                     />
                   ) : (
                     <div
@@ -134,7 +134,7 @@ const AllProducts = () => {
                   )}
                   <button
                     className="absolute bottom-2 right-2 bg-teal-500 text-white h-8 w-8 flex justify-center items-center rounded-full shadow-lg hover:bg-teal-600 transition-colors duration-300"
-                    onClick={() => handleProductClick(product.id)}
+                    onClick={() => handleProductClick(product.slug)}
                   >
                     <span className="text-xl font-bold leading-none">+</span>
                   </button>
@@ -167,7 +167,7 @@ const AllProducts = () => {
                                 WebkitLineClamp: 2, // Limits to 2 lines
                                 maxHeight: '3em', // Approximate height for 2 lines
                               }}
-                              onClick={() => handleProductClick(product.id)}
+                              onClick={() => handleProductClick(product.slug)}
                             >
                               {product.name.toUpperCase()}
                             </h3>

@@ -1,12 +1,13 @@
+// Fetch subcategory data server-side
 import { notFound } from 'next/navigation';
 import SubcategoryPage from './SubcategoryPage'; // Adjust the import path if necessary
 
 // Fetch subcategory data server-side
-async function getSubcategoryData(id) {
+async function getSubcategoryData(slug) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
   try {
-    const res = await fetch(`${apiUrl}/api/subcatdetail/${id}`, { cache: 'no-store' });
+    const res = await fetch(`${apiUrl}/api/subcatdetail/${slug}`, { cache: 'no-store' });
 
     if (!res.ok) {
       console.error('Error fetching subcategory data:', res.statusText);
@@ -29,8 +30,8 @@ async function getSubcategoryData(id) {
 
 // Metadata generation
 export async function generateMetadata({ params }) {
-  const { id } = params;
-  const subcategory = await getSubcategoryData(id);
+  const { slug } = params;
+  const subcategory = await getSubcategoryData(slug);
 
   if (!subcategory) {
     return {
@@ -48,10 +49,10 @@ export async function generateMetadata({ params }) {
 }
 
 const SubcategoryDetailsPage = async ({ params }) => {
-  const { id } = params;
+  const { slug } = params;
 
   // Fetch the subcategory data
-  const subcategory = await getSubcategoryData(id);
+  const subcategory = await getSubcategoryData(slug);
 
   // Handle subcategory not found
   if (!subcategory) {

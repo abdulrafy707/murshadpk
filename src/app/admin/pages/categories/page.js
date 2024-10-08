@@ -14,9 +14,9 @@ const fetchCategories = async () => {
   }
 };
 
-const fetchSubcategories = async (categoryId = null) => {
+const fetchSubcategories = async (categorySlug = null) => {
   try {
-    const response = await fetch(`/api/subcategories${categoryId ? `?categoryId=${categoryId}` : ''}`);
+    const response = await fetch(`/api/subcategories${categorySlug ? `?categorySlug=${categorySlug}` : ''}`);
     const data = await response.json();
     console.log('Fetched subcategories:', data); // Debugging information
     return Array.isArray(data) ? data : [];
@@ -45,11 +45,11 @@ const ProductsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const fetchData = async (categoryId = null) => {
+  const fetchData = async (categorySlug = null) => {
     setIsLoading(true);
     const [fetchedCategories, fetchedSubcategories, fetchedProducts] = await Promise.all([
       fetchCategories(),
-      fetchSubcategories(categoryId),
+      fetchSubcategories(categorySlug),
       fetchProducts(),
     ]);
     setCategories(fetchedCategories);
@@ -58,10 +58,10 @@ const ProductsPage = () => {
     setIsLoading(false);
   };
 
-  const handleCategoryClick = async (categoryId) => {
-    setSelectedCategory(categoryId);
-    const fetchedSubcategories = await fetchSubcategories(categoryId);
-    const subcategoryIds = fetchedSubcategories.map(subcategory => subcategory.id);
+  const handleCategoryClick = async (categorySlug) => {
+    setSelectedCategory(categorySlug);
+    const fetchedSubcategories = await fetchSubcategories(categorySlug);
+    const subcategoryIds = fetchedSubcategories.map((subcategory) => subcategory.id);
     const fetchedProducts = await fetchProducts(subcategoryIds);
     setSubcategories(fetchedSubcategories);
     setProducts(fetchedProducts);
@@ -79,13 +79,13 @@ const ProductsPage = () => {
         <div className="text-center text-2xl">Loading...</div>
       ) : (
         <>
-          {/* <div className="flex space-x-4 overflow-x-auto">
+          <div className="flex space-x-4 overflow-x-auto mb-4">
             {Array.isArray(categories) && categories.length > 0 ? (
               categories.map((category) => (
                 <button
-                  key={category.id}
-                  className={`cursor-pointer p-2 rounded ${selectedCategory === category.id ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
-                  onClick={() => handleCategoryClick(category.id)}
+                  key={category.slug}
+                  className={`cursor-pointer p-2 rounded ${selectedCategory === category.slug ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
+                  onClick={() => handleCategoryClick(category.slug)}
                 >
                   {category.name}
                 </button>
@@ -93,7 +93,7 @@ const ProductsPage = () => {
             ) : (
               <div>No categories found</div>
             )}
-          </div> */}
+          </div>
           <FilterableTable
             products={products}
             fetchCategories={() => fetchData(selectedCategory)}

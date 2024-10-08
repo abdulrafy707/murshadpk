@@ -1,42 +1,39 @@
-
 import { NextResponse } from 'next/server';
-import prisma from '../../util/prisma';
+import prisma from '@/app/util/prisma';
 
-// Get all categories
+// Get all categories (GET /api/categories)
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
-      include: {
-        subcategories: true,
-      },
+    const categories = await prisma.category.findMany();
+    return NextResponse.json({
+      status: true,
+      data: categories,
     });
-    return NextResponse.json(categories);
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error('Error fetching categories:', error.message);
     return NextResponse.json(
-      {
-        message: 'Failed to fetch categories',
-        status: false,
-        error: error.message,
-      },
+      { message: 'Failed to fetch categories', status: false, error: error.message },
       { status: 500 }
     );
   }
 }
-
-// Create a new category
+// Create a new category (POST /api/categories)
 export async function POST(request) {
   try {
-    const { name, imageUrl, meta_title, meta_description, meta_keywords } = await request.json();
+    const { name, slug, imageUrl, meta_title, meta_description, meta_keywords } = await request.json();
+
+    // Create the new category using the given slug
     const newCategory = await prisma.category.create({
       data: {
         name,
+        slug,
         imageUrl,
-        meta_title,           // Store meta title
-        meta_description,     // Store meta description
-        meta_keywords,        // Store meta keywords
+        meta_title,
+        meta_description,
+        meta_keywords,
       },
     });
+
     return NextResponse.json(newCategory);
   } catch (error) {
     console.error('Error creating category:', error);
@@ -50,4 +47,3 @@ export async function POST(request) {
     );
   }
 }
-

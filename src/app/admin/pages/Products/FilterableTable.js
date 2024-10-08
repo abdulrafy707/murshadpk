@@ -21,25 +21,27 @@ const FilterableTable = ({
   const [filteredSubcategories, setFilteredSubcategories] = useState([]);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
-  const [itemIdToDelete, setItemIdToDelete] = useState(null);
+  const [itemSlugToDelete, setItemSlugToDelete] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [editProduct, setEditProduct] = useState(null);
   const [productForm, setProductForm] = useState({
     name: '',
+    slug: '',
     description: '',
     price: '',
     stock: '',
-    subcategoryId: '',
+    subcategorySlug: '',
     colors: [],
     sizes: [],
     discount: '',
     isTopRated: false,
     images: [],
-    meta_title: '',           // Add meta title field
-    meta_description: '',     // Add meta description field
-    meta_keywords: '',        // Add meta keywords field
+    meta_title: '',
+    meta_description: '',
+    meta_keywords: '',
   });
+
   const [existingImages, setExistingImages] = useState([]);
   const fileInputRef = useRef(null);
   const router = useRouter();
@@ -55,7 +57,7 @@ const FilterableTable = ({
   }, [filter, products]);
 
   useEffect(() => {
-    if (subcategories.length) {
+    if (subcategories.length && selectedCategory) {
       setFilteredSubcategories(
         subcategories.filter(
           (subcat) => subcat.categoryId === parseInt(selectedCategory)
@@ -66,21 +68,22 @@ const FilterableTable = ({
     }
   }, [selectedCategory, subcategories]);
 
-  const handleDeleteClick = (id) => {
-    setItemIdToDelete(id);
+  const handleDeleteClick = (slug) => {
+    setItemSlugToDelete(slug);
     setIsPopupVisible(true);
   };
 
   const handleDeleteItem = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/products/${itemIdToDelete}`, {
+      const response = await fetch(`/api/products/${itemSlugToDelete}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
       });
       if (response.ok) {
+        console.log(`Product with slug "${itemSlugToDelete}" deleted successfully.`);
         fetchProducts(); // Refresh the data after deleting
         setIsPopupVisible(false);
       } else {
@@ -94,13 +97,12 @@ const FilterableTable = ({
 
   const handleCancelDelete = () => {
     setIsPopupVisible(false);
-    setItemIdToDelete(null);
+    setItemSlugToDelete(null);
   };
 
   const handleEditItem = (item) => {
     setEditProduct(item);
-  
-    // Get the existing colors and sizes for this product
+
     const existingColors = colors
       .filter((color) => item.colors.includes(color.id))
       .map((color) => ({
@@ -108,31 +110,33 @@ const FilterableTable = ({
         label: `${color.name} (${color.hex})`,
         hex: color.hex,
       }));
-  
+
     const existingSizes = sizes
       .filter((size) => item.sizes.includes(size.id))
       .map((size) => ({ value: size.id, label: size.name }));
-  
-    // Set the product form with the existing product values including the meta fields
+
     setProductForm({
       name: item.name,
+      slug: item.slug,
       description: item.description,
       price: item.price,
       stock: item.stock,
-      subcategoryId: item.subcategoryId,
-      colors: existingColors, // Set existing colors
-      sizes: existingSizes,    // Set existing sizes
+      subcategorySlug: item.subcategorySlug,
+      colors: existingColors,
+      sizes: existingSizes,
       discount: item.discount || '',
       isTopRated: item.isTopRated || false,
-      images: [], // Reset the image input for uploading new images
-      meta_title: item.meta_title || '',           // Set existing meta title
-      meta_description: item.meta_description || '', // Set existing meta description
-      meta_keywords: item.meta_keywords || '',     // Set existing meta keywords
+      images: [], // New images will be handled separately
+      meta_title: item.meta_title || '',
+      meta_description: item.meta_description || '',
+      meta_keywords: item.meta_keywords || '',
     });
-  
-    setExistingImages(item.images || []); // Set existing images for the product
+
+    // Store relative paths
+    const relativeImageURLs = item.images.map((img) => img.url);
+    console.log("Loaded existing images (relative paths):", relativeImageURLs);
+    setExistingImages(relativeImageURLs);
   };
-  
 
   const handleFormChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -171,9 +175,11 @@ const FilterableTable = ({
     setIsLoading(true);
 
     try {
+      // Handle new image uploads
       const uploadedImages = await Promise.all(
         [...fileInputRef.current.files].map(async (file) => {
           const imageBase64 = await convertToBase64(file);
+          console.log("Uploading image:", file.name); // Log image details
           const response = await fetch(
             'https://murshadpkdata.advanceaitool.com/uploadImage.php',
             {
@@ -186,7 +192,8 @@ const FilterableTable = ({
           );
           const result = await response.json();
           if (response.ok) {
-            return result.image_url;
+            console.log("Uploaded image URL:", `https://murshadpkdata.advanceaitool.com/uploads/${result.image_url}`);
+            return result.image_url; // Return relative path
           } else {
             throw new Error(result.error || 'Failed to upload image');
           }
@@ -195,12 +202,15 @@ const FilterableTable = ({
 
       const stockValue = parseInt(productForm.stock, 10);
 
+      // Extract relative image paths from existingImages
+      const existingRelativeImages = existingImages; // These are already relative paths
+
       const productData = {
         ...productForm,
         stock: isNaN(stockValue) ? 0 : stockValue,
         images: [
-          ...existingImages.map((img) => img.url),
-          ...uploadedImages,
+          ...existingRelativeImages, // Include existing images as relative paths
+          ...uploadedImages, // Include newly uploaded images as relative paths
         ],
         discount: productForm.discount ? productForm.discount : null,
         isTopRated: productForm.isTopRated,
@@ -209,9 +219,12 @@ const FilterableTable = ({
         meta_title: productForm.meta_title,
         meta_description: productForm.meta_description,
         meta_keywords: productForm.meta_keywords,
+        subcategorySlug: productForm.subcategorySlug, // Ensure subcategorySlug is included
       };
 
-      const response = await fetch(`/api/products/${editProduct.id}`, {
+      console.log("Product data being sent to API:", productData);
+
+      const response = await fetch(`/api/products/${editProduct.slug}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -220,25 +233,33 @@ const FilterableTable = ({
       });
 
       if (response.ok) {
-        fetchProducts();
-        setEditProduct(null);
+        const data = await response.json();
+        console.log("Update response from API:", data);
+        fetchProducts(); // Refresh the product list after updating
+        setEditProduct(null); // Clear the edit state
         setProductForm({
           name: '',
+          slug: '',
           description: '',
           price: '',
           stock: '',
-          subcategoryId: '',
+          subcategorySlug: '',
           colors: [],
           sizes: [],
           discount: '',
           isTopRated: false,
           images: [],
-          meta_title: item.meta_title || '',           // Set existing meta title
-          meta_description: item.meta_description || '', // Set existing meta description
-          meta_keywords: item.meta_keywords || '',     // Set existing meta keywords
+          meta_title: '',
+          meta_description: '',
+          meta_keywords: '',
         });
+        setExistingImages([]); // Clear existing images after update
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''; // Clear file input
+        }
       } else {
-        console.error('Failed to update product');
+        const errorData = await response.json();
+        console.error('Failed to update product:', errorData);
       }
     } catch (error) {
       console.error('Error updating product:', error);
@@ -250,33 +271,40 @@ const FilterableTable = ({
     setEditProduct(null);
     setProductForm({
       name: '',
+      slug: '', // Reset slug after cancel
       description: '',
       price: '',
       stock: '',
-      subcategoryId: '',
+      subcategorySlug: '',
       colors: [],
       sizes: [],
       discount: '',
       isTopRated: false,
       images: [],
+      meta_title: '',
+      meta_description: '',
+      meta_keywords: '',
     });
   };
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    setProductForm({
-      ...productForm,
-      images: [...productForm.images, ...files],
-    });
+    console.log("New images selected for upload:", files.map(file => file.name)); // Log the selected images
+    setProductForm((prevForm) => ({
+      ...prevForm,
+      images: [...prevForm.images, ...files],
+    }));
   };
 
   const handleRemoveExistingImage = (index) => {
+    console.log("Removing existing image at index:", index, existingImages[index]);
     setExistingImages((prevImages) =>
       prevImages.filter((_, i) => i !== index)
     );
   };
 
   const handleRemoveImage = (index) => {
+    console.log("Removing newly added image at index:", index, productForm.images[index].name); // Log the image being removed
     setProductForm((prevForm) => ({
       ...prevForm,
       images: prevForm.images.filter((_, i) => i !== index),
@@ -288,6 +316,7 @@ const FilterableTable = ({
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
+      {/* Confirmation Popup */}
       {isPopupVisible && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-md">
@@ -315,11 +344,15 @@ const FilterableTable = ({
           </div>
         </div>
       )}
+
+      {/* Loading Overlay */}
       {isLoading && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="text-white text-xl">Loading...</div>
         </div>
       )}
+
+      {/* Products List */}
       <div className="bg-white shadow rounded-lg p-4 relative">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">
@@ -340,6 +373,8 @@ const FilterableTable = ({
             </button>
           </div>
         </div>
+
+        {/* Search Input */}
         {isSearchVisible && (
           <div className="mb-4">
             <input
@@ -351,6 +386,8 @@ const FilterableTable = ({
             />
           </div>
         )}
+
+        {/* Products Table */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 w-full">
             <thead className="bg-gray-50">
@@ -359,7 +396,7 @@ const FilterableTable = ({
                   Image
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ID
+                  Slug
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Name
@@ -385,22 +422,29 @@ const FilterableTable = ({
               {Array.isArray(filteredData) &&
                 filteredData.map((item, index) => (
                   <tr
-                    key={item.id}
+                    key={item.slug}
                     className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.images && item.images.length > 0 ? (
-                        <img
-                          src={`https://murshadpkdata.advanceaitool.com/uploads/${item.images[0].url}`}
-                          alt={item.name}
-                          className="w-16 h-16 object-cover"
-                        />
-                      ) : (
-                        'N/A'
-                      )}
-                    </td>
+  {item.images && item.images.length > 0 ? (
+    <>
+      {console.log(`Image path for product ${item.name}:`, item.images[0])}
+      <img
+        src={item.images[0].url.startsWith('https://')
+          ? item.images[0].url
+          : `https://murshadpkdata.advanceaitool.com/uploads/${item.images[0].url}`}
+        alt="Product Image"
+        className="w-16 h-16 object-cover"
+      />
+    </>
+  ) : (
+    'N/A'
+  )}
+</td>
+
+
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {item.id}
+                      {item.slug}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {item.name}
@@ -428,7 +472,7 @@ const FilterableTable = ({
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeleteClick(item.id)}
+                        onClick={() => handleDeleteClick(item.slug)}
                         className="text-red-600 hover:text-red-900 transition duration-150 ease-in-out"
                       >
                         Delete
@@ -441,12 +485,13 @@ const FilterableTable = ({
         </div>
       </div>
 
+      {/* Edit Product Modal */}
       {editProduct && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl max-h-[90vh] overflow-auto rounded shadow-lg">
-
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-3xl max-h-[90vh] overflow-auto">
             <h2 className="text-xl mb-4">Edit Product</h2>
             <form onSubmit={handleFormSubmit}>
+              {/* Name */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   Name
@@ -459,6 +504,26 @@ const FilterableTable = ({
                   className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+
+              {/* Slug */}
+              <div className="mb-4">
+  <label className="block text-sm font-medium text-gray-700">
+    Slug
+  </label>
+  <input
+    type="text"
+    name="slug"
+    value={productForm.slug}
+    onChange={(e) => {
+      const updatedSlug = e.target.value.replace(/\s+/g, '-'); // Replace spaces with dashes
+      setProductForm({ ...productForm, slug: updatedSlug });
+    }}
+    className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+</div>
+
+
+              {/* Description */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   Description
@@ -470,6 +535,8 @@ const FilterableTable = ({
                   }
                 />
               </div>
+
+              {/* Price */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   Price
@@ -482,6 +549,8 @@ const FilterableTable = ({
                   className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+
+              {/* Stock */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   Stock
@@ -489,16 +558,14 @@ const FilterableTable = ({
                 <input
                   type="number"
                   name="stock"
-                  value={
-                    productForm.stock !== null
-                      ? productForm.stock.toString()
-                      : ''
-                  }
+                  value={productForm.stock !== null ? productForm.stock.toString() : ''}
                   min="0"
                   onChange={handleFormChange}
                   className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+
+              {/* Discount */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   Discount
@@ -506,23 +573,19 @@ const FilterableTable = ({
                 <input
                   type="number"
                   name="discount"
-                  value={
-                    productForm.discount
-                      ? productForm.discount.toFixed(2)
-                      : ''
-                  }
+                  value={productForm.discount ? productForm.discount.toFixed(2) : ''}
                   step="0.01"
                   onChange={(e) =>
                     setProductForm({
                       ...productForm,
-                      discount: roundToTwoDecimalPlaces(
-                        parseFloat(e.target.value) || 0
-                      ),
+                      discount: roundToTwoDecimalPlaces(parseFloat(e.target.value) || 0),
                     })
                   }
                   className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+
+              {/* Top Rated */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   Top Rated
@@ -535,24 +598,28 @@ const FilterableTable = ({
                   className="mt-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+
+              {/* Subcategory */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   Subcategory
                 </label>
                 <select
-                  name="subcategoryId"
-                  value={productForm.subcategoryId}
+                  name="subcategorySlug"
+                  value={productForm.subcategorySlug}
                   onChange={handleFormChange}
                   className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select Subcategory</option>
                   {filteredSubcategories.map((subcat) => (
-                    <option key={subcat.id} value={subcat.id}>
+                    <option key={subcat.id} value={subcat.slug}>
                       {subcat.name}
                     </option>
                   ))}
                 </select>
               </div>
+
+              {/* Colors */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   Colors
@@ -586,11 +653,11 @@ const FilterableTable = ({
                   )}
                 />
               </div>
+
+              {/* Selected Colors Display */}
               {productForm.colors.length > 0 && (
                 <div className="mb-4">
-                  <h4 className="text-md font-medium mb-2">
-                    Selected Colors
-                  </h4>
+                  <h4 className="text-md font-medium mb-2">Selected Colors</h4>
                   <div className="flex space-x-2">
                     {productForm.colors.map((color, index) => (
                       <div key={index} className="relative">
@@ -610,6 +677,8 @@ const FilterableTable = ({
                   </div>
                 </div>
               )}
+
+              {/* Sizes */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   Sizes
@@ -628,50 +697,48 @@ const FilterableTable = ({
                 />
               </div>
 
-
+              {/* Meta Title */}
               <div className="mb-4">
-  <label className="block text-sm font-medium text-gray-700">
-    Meta Title
-  </label>
-  <input
-    type="text"
-    name="meta_title"
-    value={productForm.meta_title}
-    onChange={handleFormChange}
-    className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-  />
-</div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Meta Title
+                </label>
+                <input
+                  type="text"
+                  name="meta_title"
+                  value={productForm.meta_title}
+                  onChange={handleFormChange}
+                  className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-<div className="mb-4">
-  <label className="block text-sm font-medium text-gray-700">
-    Meta Description
-  </label>
-  <textarea
-    name="meta_description"
-    value={productForm.meta_description}
-    onChange={handleFormChange}
-    className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-  />
-</div>
+              {/* Meta Description */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Meta Description
+                </label>
+                <textarea
+                  name="meta_description"
+                  value={productForm.meta_description}
+                  onChange={handleFormChange}
+                  className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-<div className="mb-4">
-  <label className="block text-sm font-medium text-gray-700">
-    Meta Keywords
-  </label>
-  <input
-    type="text"
-    name="meta_keywords"
-    value={productForm.meta_keywords}
-    onChange={handleFormChange}
-    className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-  />
-</div>
+              {/* Meta Keywords */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Meta Keywords
+                </label>
+                <input
+                  type="text"
+                  name="meta_keywords"
+                  value={productForm.meta_keywords}
+                  onChange={handleFormChange}
+                  className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-
-
-
-
-
+              {/* Image Upload */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   Images
@@ -685,16 +752,16 @@ const FilterableTable = ({
                   multiple
                 />
               </div>
+
+              {/* Existing Images */}
               <div className="mb-4">
-                <h4 className="text-md font-medium mb-2">
-                  Existing Images
-                </h4>
+                <h4 className="text-md font-medium mb-2">Existing Images</h4>
                 {existingImages.length > 0 && (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {existingImages.map((img, index) => (
                       <div key={index} className="relative">
                         <img
-                          src={`https://murshadpkdata.advanceaitool.com/uploads/${img.url}`}
+                          src={`https://murshadpkdata.advanceaitool.com/uploads/${img}`} // Prepend base URL
                           alt={`Product Image ${index}`}
                           className="w-full h-32 object-cover"
                         />
@@ -709,6 +776,8 @@ const FilterableTable = ({
                   </div>
                 )}
               </div>
+
+              {/* New Images Preview */}
               <div className="mb-4">
                 <h4 className="text-md font-medium mb-2">New Images</h4>
                 {productForm.images.length > 0 && (
@@ -717,7 +786,7 @@ const FilterableTable = ({
                       <div key={index} className="relative">
                         <img
                           src={URL.createObjectURL(img)}
-                          alt={`Product Image ${index}`}
+                          alt={`New Product Image ${index}`}
                           className="w-full h-32 object-cover"
                         />
                         <button
@@ -731,6 +800,8 @@ const FilterableTable = ({
                   </div>
                 )}
               </div>
+
+              {/* Form Actions */}
               <div className="flex justify-end space-x-2">
                 <button
                   type="button"

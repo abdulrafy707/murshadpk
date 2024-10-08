@@ -1,14 +1,17 @@
+// app/customer/pages/products/[slug]/page.js
+
 import ProductPage from './product'; // Import your ProductPage component
 import { notFound } from 'next/navigation';
 
 // Fetch product data server-side using async function
-async function getProductData(id) {
+async function getProductData(slug) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
   try {
-    const res = await fetch(`${apiUrl}/api/products/${id}`, { cache: 'no-store' });
+    const res = await fetch(`${apiUrl}/api/products/${slug}`, { cache: 'no-store' });
 
     if (!res.ok) {
+      console.error('Failed to fetch product data:', res.status);
       return null;
     }
 
@@ -22,8 +25,8 @@ async function getProductData(id) {
 
 // Metadata generation
 export async function generateMetadata({ params }) {
-  const { id } = params;
-  const product = await getProductData(id);
+  const { slug } = params; // Changed from 'id' to 'slug'
+  const product = await getProductData(slug); // Fetch using 'slug'
 
   if (!product) {
     return {
@@ -40,10 +43,10 @@ export async function generateMetadata({ params }) {
 }
 
 const ProductDetailsPage = async ({ params }) => {
-  const { id } = params;
+  const { slug } = params; // Changed from 'id' to 'slug'
 
-  // Fetch the product data
-  const product = await getProductData(id);
+  // Fetch the product data using 'slug'
+  const product = await getProductData(slug);
 
   // Handle product not found
   if (!product) {
