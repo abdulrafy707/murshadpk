@@ -1,6 +1,5 @@
 import React from "react";
 import BlogDetailPage from "./mainpage"; // Ensure you are importing the correct component
-import UserLayout from "../../../components/userlayout";
 
 export async function generateMetadata({ params }) {
   // const baseUrl = 'http://solveandwins.com';
@@ -36,9 +35,9 @@ export async function generateMetadata({ params }) {
 export default function Home({ params }) {
   return (
     <>
-    <UserLayout>
+   
       <BlogDetailPage id={params.id} />
-      </UserLayout>
+    
     </>
   );
 }
