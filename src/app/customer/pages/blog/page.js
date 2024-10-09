@@ -6,7 +6,6 @@ import Link from 'next/link';
 import BlogCategorySlider from './components/BlogSlider';
 import Subscribe from './components/Subcribe';
 import BlogSection from './components/Blogsection';
-// import UserLayout from "../../components/userlayout";
 
 export default function Blog() {
   const [featuredPost, setFeaturedPost] = useState(null);
@@ -34,7 +33,7 @@ export default function Blog() {
   };
 
   return (
-    // <UserLayout>
+   
       <div className=" bg-white">
         <main className="container mx-auto px-4 py-4">
           <h1 className='text-4xl font-bold text-center '>Blog Page</h1>
@@ -56,7 +55,7 @@ export default function Blog() {
         <BlogSection blogs={blogs} title="Fashion" />
         <Subscribe />
       </div>
-    // </UserLayout>
+
   );
 }
 
