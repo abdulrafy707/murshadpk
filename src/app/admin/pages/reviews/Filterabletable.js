@@ -15,7 +15,7 @@ const ReviewableTable = ({ reviews = [], fetchReviews, products = [] }) => {
     rating: 5,
     comment: '',
     productId: '', // productId to link the review to the selected product
-    status: 'pending', // Default status
+    status: 'active', // Default status
   });
 
   useEffect(() => {
@@ -70,7 +70,7 @@ const ReviewableTable = ({ reviews = [], fetchReviews, products = [] }) => {
           rating: 5,
           comment: '',
           productId: '', // Reset productId after submission
-          status: 'pending', // Reset status after submission
+          status: 'active', // Reset status to 'active' for new reviews
         });
       } else {
         console.error('Failed to add/update review:', result.message);
