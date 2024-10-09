@@ -7,13 +7,6 @@ const AdminOrdersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [order, setOrder] = useState(null);
-  const [deliveryCharge, setDeliveryCharge] = useState(0);
-  const [codCharge, setCodCharge] = useState(0);
-  const [taxRate, setTaxRate] = useState(0);
-  const [shippingMethod, setShippingMethod] = useState('');
-  const [shippingTerms, setShippingTerms] = useState('');
-  const [shipmentDate, setShipmentDate] = useState('');
-  const [deliveryDate, setDeliveryDate] = useState('');
   const { id } = useParams();
   const router = useRouter();
 
@@ -23,10 +16,6 @@ const AdminOrdersPage = () => {
         const response = await axios.get(`/api/orders/${id}`);
         const orderData = response.data;
         setOrder(orderData);
-        setShippingMethod(orderData.shippingMethod || '');
-        setShippingTerms(orderData.shippingTerms || '');
-        setShipmentDate(orderData.shipmentDate ? new Date(orderData.shipmentDate).toISOString().substr(0, 10) : '');
-        setDeliveryDate(orderData.deliveryDate ? new Date(orderData.deliveryDate).toISOString().substr(0, 10) : '');
         setLoading(false);
       } catch (error) {
         console.error('Error fetching order:', error);
@@ -35,24 +24,10 @@ const AdminOrdersPage = () => {
       }
     };
 
-    const fetchSettings = async () => {
-      try {
-        const response = await axios.get('/api/settings/getSettings');
-        const { deliveryCharge, taxPercentage, other1 } = response.data;
-
-        setDeliveryCharge(deliveryCharge);
-        setCodCharge(order?.paymentMethod === 'Cash on Delivery' ? other1 : 0);
-        setTaxRate(taxPercentage / 100);
-      } catch (error) {
-        console.error('Error fetching settings:', error);
-      }
-    };
-
     if (id) {
       fetchOrder();
-      fetchSettings();
     }
-  }, [id, order?.paymentMethod]);
+  }, [id]);
 
   const handleStatusChange = async (newStatus) => {
     setLoading(true);
@@ -82,18 +57,18 @@ const AdminOrdersPage = () => {
     try {
       const response = await axios.post('/api/shipping', {
         orderId: order.id,
-        shippingMethod,
-        shippingTerms,
-        shipmentDate,
-        deliveryDate,
+        shippingMethod: order.shippingMethod,
+        shippingTerms: order.shippingTerms,
+        shipmentDate: order.shipmentDate,
+        deliveryDate: order.deliveryDate,
       });
       if (response.status === 200) {
         setOrder((prevOrder) => ({
           ...prevOrder,
-          shippingMethod,
-          shippingTerms,
-          shipmentDate,
-          deliveryDate,
+          shippingMethod: order.shippingMethod,
+          shippingTerms: order.shippingTerms,
+          shipmentDate: order.shipmentDate,
+          deliveryDate: order.deliveryDate,
         }));
       } else {
         setError('Failed to update shipping information. Please try again.');
@@ -114,10 +89,12 @@ const AdminOrdersPage = () => {
     return <div className="text-center text-red-500">{error}</div>;
   }
 
-  const subtotal = order.orderItems.reduce((acc, item) => acc + item.quantity * item.price, 0);
-  const subtotalLessDiscount = subtotal - (order.discount ?? 0);
-  const totalTax = subtotalLessDiscount * taxRate;
-  const total = subtotalLessDiscount + totalTax + deliveryCharge + codCharge + (order.otherCharges ?? 0);
+  // Calculate order amounts directly from order data
+  // Updated Calculation
+const subtotal = order.orderItems.reduce((acc, item) => acc + item.quantity * item.price, 0);
+const subtotalLessDiscount = subtotal - (order.discount ?? 0);
+const totalTax = order.tax ?? 0; // Directly use tax amount from order
+const total = subtotalLessDiscount + totalTax + (order.deliveryCharge ?? 0) + (order.extraDeliveryCharge ?? 0) + (order.otherCharges ?? 0);
 
   return (
     <div className="p-6 bg-white min-h-screen">
@@ -155,6 +132,8 @@ const AdminOrdersPage = () => {
               </div>
             </div>
           </div>
+
+          {/* Shipping Information Section */}
           <div className="mt-8">
             <h3 className="text-lg text-center py-2 font-bold text-gray-700">Shipping Information</h3>
             <form onSubmit={handleShippingSubmit}>
@@ -164,8 +143,8 @@ const AdminOrdersPage = () => {
                   <input
                     type="text"
                     id="shippingMethod"
-                    value={shippingMethod}
-                    onChange={(e) => setShippingMethod(e.target.value)}
+                    value={order.shippingMethod}
+                    onChange={(e) => setOrder(prevOrder => ({ ...prevOrder, shippingMethod: e.target.value }))}
                     className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -174,8 +153,8 @@ const AdminOrdersPage = () => {
                   <input
                     type="text"
                     id="shippingTerms"
-                    value={shippingTerms}
-                    onChange={(e) => setShippingTerms(e.target.value)}
+                    value={order.shippingTerms}
+                    onChange={(e) => setOrder(prevOrder => ({ ...prevOrder, shippingTerms: e.target.value }))}
                     className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -184,8 +163,8 @@ const AdminOrdersPage = () => {
                   <input
                     type="date"
                     id="shipmentDate"
-                    value={shipmentDate}
-                    onChange={(e) => setShipmentDate(e.target.value)}
+                    value={new Date(order.shipmentDate).toISOString().substr(0, 10)}
+                    onChange={(e) => setOrder(prevOrder => ({ ...prevOrder, shipmentDate: e.target.value }))}
                     className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -194,8 +173,8 @@ const AdminOrdersPage = () => {
                   <input
                     type="date"
                     id="deliveryDate"
-                    value={deliveryDate}
-                    onChange={(e) => setDeliveryDate(e.target.value)}
+                    value={new Date(order.deliveryDate).toISOString().substr(0, 10)}
+                    onChange={(e) => setOrder(prevOrder => ({ ...prevOrder, deliveryDate: e.target.value }))}
                     className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -206,7 +185,7 @@ const AdminOrdersPage = () => {
             </form>
           </div>
 
-          {/* Scrollable table with color circles */}
+          {/* Order Items Table */}
           <div className="mt-8">
             <h3 className="text-lg text-center py-2 font-bold text-gray-700">Items</h3>
             <div className="mt-4">
@@ -284,16 +263,17 @@ const AdminOrdersPage = () => {
                   <p className="text-md text-gray-700">Rs.{subtotalLessDiscount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                 </div>
                 <div className="flex justify-between">
-                  <p className="text-md font-medium text-gray-700">Tax ({(taxRate * 100).toFixed(2)}%):</p>
-                  <p className="text-md text-gray-700">Rs.{totalTax.toFixed(2)}</p>
-                </div>
+  <p className="text-md font-medium text-gray-700">Tax:</p>
+  <p className="text-md text-gray-700">Rs.{totalTax.toFixed(2)}</p>
+</div>
+
                 <div className="flex justify-between">
                   <p className="text-md font-medium text-gray-700">Delivery Charges:</p>
-                  <p className="text-md text-gray-700">Rs.{deliveryCharge.toFixed(2)}</p>
+                  <p className="text-md text-gray-700">Rs.{(order.deliveryCharge ?? 0).toFixed(2)}</p>
                 </div>
                 <div className="flex justify-between">
                   <p className="text-md font-medium text-gray-700">Cash on Delivery Charges:</p>
-                  <p className="text-md text-gray-700">Rs.{codCharge.toFixed(2)}</p>
+                  <p className="text-md text-gray-700">Rs.{(order.extraDeliveryCharge ?? 0).toFixed(2)}</p>
                 </div>
                 <div className="flex justify-between">
                   <p className="text-md font-medium text-gray-700">Other:</p>

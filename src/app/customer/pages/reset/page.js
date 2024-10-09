@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ToastContainer, toast } from 'react-toastify';
@@ -35,7 +34,13 @@ export default function ResetPasswordPage() {
 
       if (res.ok) {
         toast.success('Password reset successful!');
-        setTimeout(() => router.push('/customer/pages/login'), 3000);
+
+        // Redirect based on the user's role
+        if (data.role === 'customer') {
+          setTimeout(() => router.push('/customer/pages/login'), 3000); // Redirect to customer login
+        } else if (data.role === 'admin') {
+          setTimeout(() => router.push('/admin'), 3000); // Redirect to admin dashboard
+        }
       } else {
         toast.error(data.message || 'Failed to reset password');
       }

@@ -1,4 +1,5 @@
-'use client'
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/24/outline';
 
@@ -14,6 +15,7 @@ const ReviewableTable = ({ reviews = [], fetchReviews, products = [] }) => {
     rating: 5,
     comment: '',
     productId: '', // productId to link the review to the selected product
+    status: 'pending', // Default status
   });
 
   useEffect(() => {
@@ -36,23 +38,28 @@ const ReviewableTable = ({ reviews = [], fetchReviews, products = [] }) => {
         productId: parseInt(newReview.productId, 10),
         rating: parseInt(newReview.rating, 10),
       };
-
-      const response = newReview.id
-        ? await fetch(`/api/reviews/${newReview.id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(reviewToSubmit),
-          })
-        : await fetch('/api/reviews', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(reviewToSubmit),
-          });
-
+  
+      let response;
+      if (newReview.id) {
+        // If the review has an ID, it's an existing review, so use PUT for updating
+        response = await fetch(`/api/reviews?id=${newReview.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(reviewToSubmit),
+        });
+      } else {
+        // If no ID, it's a new review, so use POST for creating
+        response = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(reviewToSubmit),
+        });
+      }
+  
       const result = await response.json();
       if (response.ok) {
         fetchReviews(); // Refresh the data after adding or updating
@@ -63,6 +70,7 @@ const ReviewableTable = ({ reviews = [], fetchReviews, products = [] }) => {
           rating: 5,
           comment: '',
           productId: '', // Reset productId after submission
+          status: 'pending', // Reset status after submission
         });
       } else {
         console.error('Failed to add/update review:', result.message);
@@ -72,6 +80,7 @@ const ReviewableTable = ({ reviews = [], fetchReviews, products = [] }) => {
     }
     setIsLoading(false);
   };
+  
 
   const handleDeleteItem = async (id) => {
     setIsLoading(true);
@@ -123,6 +132,7 @@ const ReviewableTable = ({ reviews = [], fetchReviews, products = [] }) => {
                   rating: 5,
                   comment: '',
                   productId: '', // Reset productId
+                  status: 'pending', // Default status
                 });
                 setIsModalOpen(true);
               }}
@@ -151,6 +161,7 @@ const ReviewableTable = ({ reviews = [], fetchReviews, products = [] }) => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comment</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
@@ -163,6 +174,7 @@ const ReviewableTable = ({ reviews = [], fetchReviews, products = [] }) => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.rating}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.product?.name || 'N/A'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.comment || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.status || 'pending'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <button
                         onClick={() => handleEditItem(item)}
@@ -181,7 +193,7 @@ const ReviewableTable = ({ reviews = [], fetchReviews, products = [] }) => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="px-6 py-4 text-center text-gray-500">No data available</td>
+                  <td colSpan="7" className="px-6 py-4 text-center text-gray-500">No data available</td>
                 </tr>
               )}
             </tbody>
@@ -226,6 +238,18 @@ const ReviewableTable = ({ reviews = [], fetchReviews, products = [] }) => {
                     {product.name}
                   </option>
                 ))}
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">Status</label>
+              <select
+                value={newReview.status}
+                onChange={(e) => setNewReview({ ...newReview, status: e.target.value })}
+                className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
               </select>
             </div>
             <div className="mb-4">

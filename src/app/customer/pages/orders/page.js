@@ -9,9 +9,6 @@ const UserOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [deliveryCharge, setDeliveryCharge] = useState(0);
-  const [taxRate, setTaxRate] = useState(0);
-  const [extraDeliveryCharge, setExtraDeliveryCharge] = useState(0); // Added extra delivery charge state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -19,28 +16,6 @@ const UserOrders = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const response = await axios.get('/api/settings/getSettings');
-        const { deliveryCharge, taxPercentage } = response.data;
-        setDeliveryCharge(deliveryCharge);
-        setTaxRate(taxPercentage / 100);
-      } catch (error) {
-        console.error('Error fetching settings:', error);
-      }
-    };
-
-    const fetchExtraDeliveryCharge = async () => {
-      try {
-        const response = await axios.get('/api/settings/getSettings');
-        const { other1 } = response.data; // Fetch the extra delivery charge from the settings
-        setExtraDeliveryCharge(other1);
-      } catch (error) {
-        console.error('Error fetching extra delivery charge:', error);
-        setExtraDeliveryCharge(0);
-      }
-    };
-
     const fetchOrders = async () => {
       const token = sessionStorage.getItem('authToken');
       if (!token) {
@@ -62,8 +37,6 @@ const UserOrders = () => {
       }
     };
 
-    fetchSettings();
-    fetchExtraDeliveryCharge(); // Fetch extra delivery charge
     fetchOrders();
   }, [router]);
 
@@ -165,8 +138,8 @@ const UserOrders = () => {
                 {orders.map((order) => {
                   const subtotal = order.orderItems.reduce((acc, item) => acc + item.quantity * item.price, 0);
                   const subtotalLessDiscount = subtotal - (order.discount ?? 0);
-                  const totalTax = subtotalLessDiscount * taxRate;
-                  const total = subtotalLessDiscount + totalTax + deliveryCharge + (order.extraDeliveryCharge ?? extraDeliveryCharge); // Include extra delivery charge
+                  const totalTax = subtotalLessDiscount * (order.tax ?? 0);
+                  const total = subtotalLessDiscount + totalTax + (order.deliveryCharge ?? 0) + (order.extraDeliveryCharge ?? 0);
 
                   const productNames = (
                     <ul className="list-disc list-inside">
@@ -182,14 +155,13 @@ const UserOrders = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.status}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-  {order.orderItems.map(item => (
-    <li key={item.id} className="text-gray-700">{item.product.name.toUpperCase()}</li>
-  ))}
-</td>
-<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-  Rs.{total.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-</td>
-
+                        {order.orderItems.map(item => (
+                          <li key={item.id} className="text-gray-700">{item.product.name.toUpperCase()}</li>
+                        ))}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        Rs.{total.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button
                           onClick={() => handleViewDetails(order)}
@@ -219,107 +191,59 @@ const UserOrders = () => {
               <p className="mb-2"><strong>Date:</strong> {new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
               <h3 className="font-semibold mt-4">Items:</h3>
               <div className="flex flex-col gap-4">
-  {selectedOrder.orderItems.map((item) => (
-    <div key={item.id} className="bg-white flex items-start justify-between p-4 border-b border-gray-300">
-      {/* Product Image */}
-      {item.product.images && item.product.images.length > 0 ? (
-        <img
-          src={`https://murshadpkdata.advanceaitool.com/uploads/${item.product.images[0].url}`}
-          alt={item.product.name}
-          className="h-20 w-20 object-cover rounded mr-4"
-        />
-      ) : (
-        <div className="h-20 w-20 bg-gray-200 rounded flex items-center justify-center text-gray-500 mr-4">
-          No Image
-        </div>
-      )}
-      
-      {/* Product Information */}
-      <div className="flex-grow pr-4">
-        <div className='flex justify-between items-center w-full'>
-        <h3 className="text-md font-semibold text-gray-600">{item.product.name.toUpperCase()}</h3>
-
-        <p className="text-md font-bold text-gray-600">Rs.{item.price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
-
-
-        </div>
-        <p className="text-sm font-normal text-gray-600">Size: {item.selectedSize || 'N/A'}</p>
-        <p className="text-sm font-normal text-gray-600">Color: {item.selectedColor || 'N/A'}</p>
-      </div>
-
-      {/* Remove and Quantity Controls */}
-      <div className="flex flex-col items-end space-y-2">
-        {/* <button
-          className="text-blue-500 underline"
-          onClick={() => handleRemoveFromCart(item.id)}
-        >
-          remove
-        </button> */}
-        <div className="flex items-center border border-gray-300 rounded-full px-4 py-1">
-          <button
-            className="text-gray-700 px-2"
-            onClick={() => updateItemQuantity(item.id, item.quantity - 1)}
-            disabled={item.quantity <= 1}
-          >
-            {/* <FiMinus /> */}
-          </button>
-          <span className="mx-4">{item.quantity}</span>
-          <button
-            className="text-gray-700 px-2"
-            onClick={() => updateItemQuantity(item.id, item.quantity + 1)}
-          >
-            {/* <FiPlus /> */}
-          </button>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
-
-
-
+                {selectedOrder.orderItems.map((item) => (
+                  <div key={item.id} className="bg-white flex items-start justify-between p-4 border-b border-gray-300">
+                    {item.product.images && item.product.images.length > 0 ? (
+                      <img
+                        src={`https://murshadpkdata.advanceaitool.com/uploads/${item.product.images[0].url}`}
+                        alt={item.product.name}
+                        className="h-20 w-20 object-cover rounded mr-4"
+                      />
+                    ) : (
+                      <div className="h-20 w-20 bg-gray-200 rounded flex items-center justify-center text-gray-500 mr-4">
+                        No Image
+                      </div>
+                    )}
+                    <div className="flex-grow pr-4">
+                      <div className="flex justify-between items-center w-full">
+                        <h3 className="text-md font-semibold text-gray-600">{item.product.name.toUpperCase()}</h3>
+                        <p className="text-md font-bold text-gray-600">Rs.{item.price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                      </div>
+                      <p className="text-sm font-normal text-gray-600">Size: {item.selectedSize || 'N/A'}</p>
+                      <p className="text-sm font-normal text-gray-600">Color: {item.selectedColor || 'N/A'}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
                 {(() => {
                   const subtotal = selectedOrder.orderItems.reduce((acc, item) => acc + item.quantity * item.price, 0);
                   const subtotalLessDiscount = subtotal - (selectedOrder.discount ?? 0);
-                  const totalTax = subtotalLessDiscount * taxRate;
-                  const total = subtotalLessDiscount + totalTax + deliveryCharge + (selectedOrder.extraDeliveryCharge ?? extraDeliveryCharge); // Include extra delivery charge
+                  const totalTax = subtotalLessDiscount * (selectedOrder.tax ?? 0);
+                  const total = subtotalLessDiscount + totalTax + (selectedOrder.deliveryCharge ?? 0) + (selectedOrder.extraDeliveryCharge ?? 0);
 
                   return (
                     <>
                       <div className="flex justify-between">
-  <p className="text-md font-medium text-gray-700">Subtotal:</p>
-  <p className="text-xl text-gray-700">Rs.{subtotalLessDiscount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
-</div>
-<div className="flex justify-between">
-  <p className="text-md font-medium text-gray-700">Delivery Charges:</p>
-  <p className="text-md text-gray-700">Rs.{deliveryCharge.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
-</div>
-<div className="flex justify-between">
-  <p className="text-md font-medium text-gray-700">Cash on Delivery Charge:</p>
-  <p className="text-md text-gray-700">Rs.{(selectedOrder.extraDeliveryCharge ?? extraDeliveryCharge).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
-</div>
-<hr className="my-2" />
-<div className="flex justify-between mt-4">
-  <p className="text-xl font-bold text-gray-700">Total:</p>
-  <p className="text-xl text-gray-700">Rs.{total.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
-</div>
-
+                        <p className="text-md font-medium text-gray-700">Subtotal:</p>
+                        <p className="text-xl text-gray-700">Rs.{subtotalLessDiscount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                      </div>
+                      <div className="flex justify-between">
+                        <p className="text-md font-medium text-gray-700">Delivery Charges:</p>
+                        <p className="text-md text-gray-700">Rs.{(selectedOrder.deliveryCharge ?? 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                      </div>
+                      <div className="flex justify-between">
+                        <p className="text-md font-medium text-gray-700">Cash on Delivery Charge:</p>
+                        <p className="text-md text-gray-700">Rs.{(selectedOrder.extraDeliveryCharge ?? 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                      </div>
+                      <hr className="my-2" />
+                      <div className="flex justify-between mt-4">
+                        <p className="text-xl font-bold text-gray-700">Total:</p>
+                        <p className="text-xl text-gray-700">Rs.{total.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                      </div>
                     </>
                   );
                 })()}
-              </div>
-              <div className="mt-4 flex space-x-2">
-                {Object.keys(statusClasses).map((status) => (
-                  <span
-                    key={status}
-                    className={`px-4 py-2 rounded-full text-xs font-semibold ${
-                      selectedOrder.status === status ? 'bg-green-500 text-white' : statusClasses[status]
-                    }`}
-                  >
-                    {status}
-                  </span>
-                ))}
               </div>
               {(selectedOrder.status === 'PENDING' || selectedOrder.status === 'PAID') && (
                 <div className="mt-4">

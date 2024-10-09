@@ -1,5 +1,3 @@
-// app/customer/pages/products/product.js
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -9,7 +7,7 @@ import { motion } from 'framer-motion';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from 'react-redux';
-import { setCart } from '@/app/store/cartSlice';
+import { addToCart, setCart } from '@/app/store/cartSlice';
 import { ThreeDots } from 'react-loader-spinner';
 import Modal from 'react-modal';
 import { FiMinus, FiPlus } from 'react-icons/fi';
@@ -20,27 +18,44 @@ const ProductPage = ({ productData }) => {
   const [product, setProduct] = useState(productData.product);
   const [relatedProducts, setRelatedProducts] = useState(productData.relatedProducts || []);
   const [reviews, setReviews] = useState([]);
-
   const [cart, setCartState] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const [sizes, setSizes] = useState([]);
   const [colors, setColors] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [reviewLoading, setReviewLoading] = useState(false);
 
+  // Fetch product details and related products
   useEffect(() => {
-    if (product) {
-      const parsedSizes = JSON.parse(product.sizes || '[]');
-      const parsedColors = JSON.parse(product.colors || '[]');
+    const fetchProduct = async () => {
+      try {
+        const response = await axios.get(`/api/products?slug=${product.slug}`);
+        const { product: fetchedProduct, relatedProducts } = response.data.data;
 
-      setSizes(Array.isArray(parsedSizes) ? parsedSizes : []);
-      setColors(Array.isArray(parsedColors) ? parsedColors : []);
+        setSizes(JSON.parse(fetchedProduct.sizes || '[]'));
+        setColors(JSON.parse(fetchedProduct.colors || '[]'));
+        setProduct(fetchedProduct);
+        setRelatedProducts(relatedProducts);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching product:', error);
+        setLoading(false);
+      }
+    };
+
+    if (product.slug) {
+      fetchProduct();
     }
-  }, [product]);
+  }, [product.slug]);
 
+  // Fetch reviews for the product
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -51,11 +66,54 @@ const ProductPage = ({ productData }) => {
       }
     };
 
-    if (product) {
+    if (product.id) {
       fetchReviews();
     }
-  }, [product]);
+  }, [product.id]);
 
+  // Handle Review Submission
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+
+    const username = localStorage.getItem('userName'); // Fetch the username from localStorage
+
+    if (!username) {
+      // If user is not authenticated, redirect to login page
+      toast.error('You must be logged in to submit a review.');
+      router.push('/customer/pages/login'); // Redirect to login page
+      return;
+    }
+
+    if (!rating || rating < 1 || rating > 5) {
+      toast.error('Please provide a valid rating between 1 and 5.');
+      return;
+    }
+
+    try {
+      setReviewLoading(true);
+      const response = await axios.post('/api/reviews', {
+        productId: product.id,
+        reviewer: username, // Use the username from localStorage
+        rating,
+        comment,
+      });
+
+      if (response.data.status === 201) {
+        toast.success('Your review has been submitted.');
+        setRating(0);
+        setComment('');
+      } else {
+        toast.error('Failed to submit review.');
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      toast.error('An error occurred while submitting your review.');
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
+  // Add product to cart
   const handleAddToCart = () => {
     if (quantity > product.stock) {
       toast.error(`You cannot add more than ${product.stock} of this item.`);
@@ -107,10 +165,12 @@ const ProductPage = ({ productData }) => {
     setIsModalOpen(true);
   };
 
+  // Utility function to calculate the original price after discount
   const calculateOriginalPrice = (price, discount) => {
     return price - price * (discount / 100);
   };
 
+  // Utility function to get the image URL
   const getImageUrl = (url) => {
     return `https://murshadpkdata.advanceaitool.com/uploads/${url}`;
   };
@@ -132,9 +192,9 @@ const ProductPage = ({ productData }) => {
   };
 
   return (
-    <div className="container pt-4 mx-auto px-4">
+    <div className="container mx-auto px-4">
       <ToastContainer />
-      {loading && (
+      {isNavigating && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <ThreeDots
             height="80"
@@ -193,7 +253,7 @@ const ProductPage = ({ productData }) => {
         </div>
 
         {/* Product Info and Add to Cart */}
-        <div className="w-full lg:w-2/5 mt-4 h-full flex flex-col">
+        <div className="w-full lg:w-2/5 h-full flex flex-col">
           <h2 className="text-2xl font-bold mb-4">{product.name.toUpperCase()}</h2>
 
           <div className="flex items-center mb-4">
@@ -345,6 +405,53 @@ const ProductPage = ({ productData }) => {
             ) : (
               <p className="text-gray-500">No reviews yet. Be the first to leave a review!</p>
             )}
+
+            {/* Add Review Form */}
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4">Leave a Review</h3>
+              <form onSubmit={handleReviewSubmit}>
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="rating">
+                    Rating
+                  </label>
+                  <select
+                    id="rating"
+                    value={rating}
+                    onChange={(e) => setRating(Number(e.target.value))}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    required
+                  >
+                    <option value="">Select Rating</option>
+                    <option value="1">1 Star</option>
+                    <option value="2">2 Stars</option>
+                    <option value="3">3 Stars</option>
+                    <option value="4">4 Stars</option>
+                    <option value="5">5 Stars</option>
+                  </select>
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="comment">
+                    Comment
+                  </label>
+                  <textarea
+                    id="comment"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    rows="4"
+                    placeholder="Write your review..."
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="bg-blue-500 text-white py-2 px-4 rounded"
+                  disabled={reviewLoading}
+                >
+                  {reviewLoading ? 'Submitting...' : 'Submit Review'}
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
@@ -388,6 +495,15 @@ const ProductPage = ({ productData }) => {
                         No Image
                       </div>
                     )}
+                    <button
+                      className="absolute bottom-2 right-2 bg-teal-500 text-white h-8 w-8 flex justify-center items-center rounded-full shadow-lg hover:bg-teal-600 transition-colors duration-300"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/customer/pages/products/${relatedProduct.slug}`);
+                      }}
+                    >
+                      <span className="text-xl font-bold leading-none">+</span>
+                    </button>
                   </div>
 
                   <div className="grid grid-cols-2 px-2">

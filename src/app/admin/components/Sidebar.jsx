@@ -13,7 +13,8 @@ import {
   FaCogs, 
   FaTicketAlt, 
   FaImages, 
-  FaStar
+  FaStar, 
+  FaBlog // Import FaBlog for blog icon (can be adjusted)
 } from 'react-icons/fa';
 
 const Sidebar = ({ setActiveComponent }) => {
@@ -26,8 +27,9 @@ const Sidebar = ({ setActiveComponent }) => {
     color: false,
     settings: false,
     coupons: false,
-    sliders: false, // Added slider state
-    socialmedia: false, // Added social media state
+    sliders: false, 
+    socialmedia: false, 
+    blog: false // Added blog state
   });
 
   const toggleDropdown = (key) => {
@@ -57,7 +59,7 @@ const Sidebar = ({ setActiveComponent }) => {
               onClick={() => toggleDropdown('customers')}
             >
               <FaUsers className="h-5 w-5" />
-              <span className="ml-2">Customers</span>
+              <span className="ml-2">Customers Data</span>
               <FaChevronDown className="h-3 w-3 ml-auto" />
             </button>
             {isDropdownOpen.customers && (
@@ -292,6 +294,35 @@ const Sidebar = ({ setActiveComponent }) => {
             )}
           </li>
 
+          {/* Blog Dropdown */}
+          <li>
+            <button
+              className="flex items-center w-full p-2 hover:bg-blue-700 rounded focus:outline-none"
+              onClick={() => toggleDropdown('blog')} // Toggle for blog
+            >
+              <FaBlog className="h-5 w-5" />
+              <span className="ml-2">Blog</span>
+              <FaChevronDown className="h-3 w-3 ml-auto" />
+            </button>
+            {isDropdownOpen.blog && (
+              <ul className="ml-8 mt-2 space-y-2">
+                <li>
+                  <a href='/admin/pages/Blogs'>
+                    <button className="flex items-center p-2 hover:bg-blue-700 rounded">
+                      <span className="ml-2">Add Blog</span>
+                    </button>
+                  </a>
+                </li>
+                <li>
+                  <a href='/admin/pages/BlogCategory'>
+                    <button className="flex items-center p-2 hover:bg-blue-700 rounded">
+                      <span className="ml-2">Blog Categories</span>
+                    </button>
+                  </a>
+                </li>
+              </ul>
+            )}
+          </li>
 
           <li>
             <button

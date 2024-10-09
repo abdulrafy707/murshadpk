@@ -6,7 +6,7 @@ export async function POST(request) {
   try {
     const { email, name, orderId } = await request.json();
 
-    // Fetch order details by orderId
+    // Fetch order details by orderId, including related data
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {
@@ -29,14 +29,12 @@ export async function POST(request) {
       throw new Error('Invalid items array');
     }
 
-    // Fetch delivery and extra delivery charges from settings
-    const settingsResponse = await fetch(`http://murshadpk.com/api/settings/getSettings`);
-    const settings = await settingsResponse.json();
+    // Fetch delivery charges, extra delivery charges, and tax rate from the order
+    const deliveryCharge = order.deliveryCharge || 0;
+    const extraDeliveryCharge = order.extraDeliveryCharge || 0;
+    const taxAmount = order.tax || 0; // Tax amount, not a rate
 
-    const deliveryCharge = settings.deliveryCharge || 0;
-    const extraDeliveryCharge = settings.other1 || 0;
-
-    // Build the product list from items array
+    // Build the product list from the items array
     const productList = items.map(item => {
       const productName = item.product && item.product.name ? item.product.name.toUpperCase() : 'Unknown Product';
       const price = item.price || 0;
@@ -100,6 +98,10 @@ export async function POST(request) {
               </tr>
               ` : ''}
               <tr>
+                <td style="padding: 15px; color: #555;">Tax:</td>
+                <td style="padding: 15px; text-align: right; color: #333;">Rs. ${taxAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+              </tr>
+              <tr>
                 <td style="padding: 15px; font-weight: bold;">Total Amount:</td>
                 <td style="padding: 15px; text-align: right; font-weight: bold; color: #007BFF;">Rs. ${finalTotal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
               </tr>
@@ -125,4 +127,3 @@ export async function POST(request) {
     return NextResponse.json({ message: 'Failed to send order confirmation email', error: error.message }, { status: 500 });
   }
 }
-

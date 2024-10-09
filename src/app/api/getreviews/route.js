@@ -1,5 +1,3 @@
-// src/app/api/reviews/route.js
-
 import { NextResponse } from 'next/server';
 import prisma from '@/app/util/prisma';
 
@@ -15,6 +13,7 @@ export async function GET(request) {
     const reviews = await prisma.review.findMany({
       where: {
         productId: Number(productId),
+        status: 'active', // Only fetch active reviews
       },
       include: {
         product: true,

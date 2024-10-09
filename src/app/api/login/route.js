@@ -35,7 +35,7 @@ export async function POST(request) {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ email: user.email, id: user.id, role: user.role }, SECRET_KEY, {
+    const token = jwt.sign({ email: user.email, id: user.id, name:user.name, role: user.role }, SECRET_KEY, {
       expiresIn: '1h' // token will expire in 1 hour
     });
 
@@ -43,7 +43,7 @@ export async function POST(request) {
       success: true,
       message: "Login Successfully",
       token,
-      user: { email: user.email, id: user.id, role: user.role }, // Return the user details
+      user: { email: user.email, id: user.id,name:user.name, role: user.role }, // Return the user details
     });
   } catch (error) {
     console.error('Error during login:', error);

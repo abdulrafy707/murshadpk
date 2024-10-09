@@ -90,7 +90,7 @@ const Footer = () => {
         <div className="flex flex-col gap-2 col-span-2">
           <p className="text-[20px] font-[600]">Support</p>
           <p className="text-[15px] font-[400]">Email: munawar.vu@gmail.com</p>
-          <p className="text-[15px] font-[400]">Phone: 03137743008</p>
+          <p className="text-[15px] font-[400]">Phone: 03356768338</p>
           <p className="text-[15px] font-[400]">Address: Near union council kandhanwala  P/O Mandi Bahauddin , Tehsil and Distr, -, -, Pakistan</p>
         </div>
       </div>

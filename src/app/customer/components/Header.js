@@ -249,7 +249,13 @@ const Header = () => {
                 {category.name}
                 <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-blue-500 transition-all duration-300 group-hover:w-full"></span>
               </Link>
+
             ))}
+            <Link
+                
+                href={`/customer/pages/blog`}
+                className="relative group text-gray-700 transition-colors duration-300 py-2 lg:py-0"
+              >Blog</Link>
           </div>
         </nav>
 

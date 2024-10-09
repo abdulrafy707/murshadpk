@@ -108,9 +108,16 @@ const CheckoutPage = () => {
   const calculateTotal = () => {
     const subtotalAfterDiscount = total - discount;
     const tax = subtotalAfterDiscount * taxRate;
-    const additionalCharge = paymentMethod === 'Cash on Delivery' ? extraDeliveryCharge : 0;
-    return subtotalAfterDiscount + tax + deliveryCharge + additionalCharge;
+    
+    // Apply condition: If subtotal after discount > 5000, delivery charge is 0
+    const effectiveDeliveryCharge = subtotalAfterDiscount > 5000 ? 0 : deliveryCharge;
+    
+    // Apply COD charge only if payment method is 'Cash on Delivery'
+    const effectiveCodCharge = paymentMethod === 'Cash on Delivery' ? extraDeliveryCharge : 0;
+    
+    return subtotalAfterDiscount + tax + effectiveDeliveryCharge + effectiveCodCharge;
   };
+  
 
   const handlePaymentMethodChange = (method) => {
     setPaymentMethod(method);
@@ -290,17 +297,32 @@ const handlePlaceOrder = async (e) => {
     }
 
     // Prepare order items (fetch product name for each item)
-    const orderItems = await Promise.all(cart.map(async (item) => {
-      const productName = await fetchProductNameById(item.productId); // Fetch product name by ID
-      return {
-        productId: item.productId,
-        quantity: item.quantity,
-        price: item.price,
-        product: { name: productName } // Use the fetched product name
-      };
-    }));
+    const orderItems = await Promise.all(
+      cart.map(async (item) => {
+        const productName = await fetchProductNameById(item.productId); // Fetch product name by ID
+        return {
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+          product: { name: productName } // Use the fetched product name
+        };
+      })
+    );
 
     console.log('Order Items:', orderItems); // Debug orderItems
+
+    // Calculate effective charges
+    const subtotalAfterDiscount = total - discount;
+    const calculatedTax = subtotalAfterDiscount * taxRate;
+
+    // Apply condition: If subtotal after discount > 5000, delivery charge is 0
+    const effectiveDeliveryCharge = subtotalAfterDiscount > 5000 ? 0 : deliveryCharge;
+
+    // Apply COD charge only if payment method is 'Cash on Delivery'
+    const effectiveCodCharge = paymentMethod === 'Cash on Delivery' ? extraDeliveryCharge : 0;
+
+    // Calculate total
+    const calculatedTotal = subtotalAfterDiscount + calculatedTax + effectiveDeliveryCharge + effectiveCodCharge;
 
     // Prepare order details
     const orderDetails = {
@@ -309,11 +331,13 @@ const handlePlaceOrder = async (e) => {
       paymentMethod,
       paymentInfo: paymentMethod === 'Credit Card' ? paymentInfo : null,
       items: orderItems, // Pass the correct items structure
-      total: calculateTotal(),
+      total: calculatedTotal,
       discount,
-      tax: (total - discount) * taxRate,
-      netTotal: calculateTotal(),
-      couponCode,
+      tax: calculatedTax,
+      netTotal: calculatedTotal,
+      deliveryCharge: effectiveDeliveryCharge,
+      extraDeliveryCharge: effectiveCodCharge,
+      couponCode
     };
 
     console.log('Order Details:', orderDetails); // Debug orderDetails
@@ -335,11 +359,11 @@ const handlePlaceOrder = async (e) => {
         shippingAddress.email, // Email to send to
         shippingAddress.recipientName, // Customer's name
         response.data.data.id, // Use order ID from backend response
-        calculateTotal(), // Total amount
+        calculatedTotal, // Total amount
         orderItems, // Ordered items
         shippingAddress, // Shipping address details
-        deliveryCharge, // Delivery charge
-        extraDeliveryCharge // Extra delivery charge for COD
+        effectiveDeliveryCharge, // Delivery charge
+        effectiveCodCharge // Extra delivery charge for COD
       );
 
       toast.success('Order placed successfully!');
@@ -352,7 +376,6 @@ const handlePlaceOrder = async (e) => {
     toast.error('Failed to place order. Please try again.');
   }
 };
-
 
 
 
@@ -556,41 +579,41 @@ const sendOrderConfirmation = async (email, name, orderId, total, items, address
           </div>
 
           <div className="border p-4">
-            <h2 className="text-2xl font-semibold mb-4">Order Summary</h2>
-            <div className="bg-white shadow-lg rounded-lg p-4 flex flex-col gap-2">
-              <div className="flex justify-between">
-                <p className="text-md font-medium text-gray-700">Subtotal:</p>
-                <p className="text-xl text-gray-700">Rs.{total.toFixed(2)}</p>
-              </div>
-              <div className="flex justify-between">
-                <p className="text-md font-medium text-gray-700">Discount ({((discount / total) * 100).toFixed(2)}%):</p>
-                <p className="text-md text-gray-700">- Rs.{discount.toFixed(2)}</p>
-              </div>
-              <hr className="my-2" />
-              <div className="flex justify-between">
-                <p className="text-md font-medium text-gray-700">Subtotal after Discount:</p>
-                <p className="text-md text-gray-700">Rs.{(total - discount).toFixed(2)}</p>
-              </div>
-              <div className="flex justify-between">
-                <p className="text-md font-medium text-gray-700">Tax ({(taxRate * 100).toFixed(2)}%):</p>
-                <p className="text-md text-gray-700">Rs.{((total - discount) * taxRate).toFixed(2)}</p>
-              </div>
-              <div className="flex justify-between">
-                <p className="text-md font-medium text-gray-700">Delivery Charges:</p>
-                <p className="text-md text-gray-700">Rs.{deliveryCharge.toFixed(2)}</p>
-              </div>
-              {paymentMethod === 'Cash on Delivery' && (
-                <div className="flex justify-between">
-                  <p className="text-md font-medium text-gray-700">Cash On Delivery Charges:</p>
-                  <p className="text-md text-gray-700">Rs.{extraDeliveryCharge.toFixed(2)}</p>
-                </div>
-              )}
-              <hr className="my-2" />
-              <div className="flex justify-between">
-                <p className="text-xl font-bold text-gray-700">Total:</p>
-                <p className="text-xl text-gray-700">Rs.{calculateTotal().toFixed(2)}</p>
-              </div>
-            </div>
+  <h2 className="text-2xl font-semibold mb-4">Order Summary</h2>
+  <div className="bg-white shadow-lg rounded-lg p-4 flex flex-col gap-2">
+    <div className="flex justify-between">
+      <p className="text-md font-medium text-gray-700">Subtotal:</p>
+      <p className="text-xl text-gray-700">Rs.{total.toFixed(2)}</p>
+    </div>
+    <div className="flex justify-between">
+      <p className="text-md font-medium text-gray-700">Discount ({total > 0 ? ((discount / total) * 100).toFixed(2) : 0}%):</p>
+      <p className="text-md text-gray-700">- Rs.{discount.toFixed(2)}</p>
+    </div>
+    <hr className="my-2" />
+    <div className="flex justify-between">
+      <p className="text-md font-medium text-gray-700">Subtotal after Discount:</p>
+      <p className="text-md text-gray-700">Rs.{(total - discount).toFixed(2)}</p>
+    </div>
+    <div className="flex justify-between">
+      <p className="text-md font-medium text-gray-700">Tax ({(taxRate * 100).toFixed(2)}%):</p>
+      <p className="text-md text-gray-700">Rs.{((total - discount) * taxRate).toFixed(2)}</p>
+    </div>
+    <div className="flex justify-between">
+      <p className="text-md font-medium text-gray-700">Delivery Charges:</p>
+      <p className="text-md text-gray-700">Rs.{(total - discount) > 5000 ? 0 : deliveryCharge.toFixed(2)}</p>
+    </div>
+    {paymentMethod === 'Cash on Delivery' && (
+      <div className="flex justify-between">
+        <p className="text-md font-medium text-gray-700">Cash On Delivery Charges:</p>
+        <p className="text-md text-gray-700">Rs.{extraDeliveryCharge.toFixed(2)}</p>
+      </div>
+    )}
+    <hr className="my-2" />
+    <div className="flex justify-between">
+      <p className="text-xl font-bold text-gray-700">Total:</p>
+      <p className="text-xl text-gray-700">Rs.{calculateTotal().toFixed(2)}</p>
+    </div>
+  </div>
 
             <div className="mt-6">
               <h2 className="text-2xl font-semibold mb-4">Coupon Code</h2>

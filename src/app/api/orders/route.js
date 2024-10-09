@@ -53,24 +53,36 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    const { userId, shippingAddress, paymentMethod, items, total, discount = 0, tax, netTotal, couponCode = null } = await request.json();
+    const {
+      userId,
+      shippingAddress,
+      paymentMethod,
+      items,
+      total,
+      discount = 0,
+      tax,
+      netTotal,
+      deliveryCharge, // Add delivery charge
+      extraDeliveryCharge, // Add extra delivery charge
+      couponCode = null
+    } = await request.json();
 
-    // Ensure that paymentInfo is defined only when the payment method is 'Credit Card'
     const paymentInfo = paymentMethod === 'Credit Card' ? await request.json().paymentInfo : null;
 
-    // Validate the required fields
     if (!items || items.length === 0 || !total || !netTotal) {
       return NextResponse.json({ message: 'Invalid order data', status: false }, { status: 400 });
     }
 
-    // Create the order in the database
+    // Create the order
     const createdOrder = await prisma.order.create({
       data: {
-        userId: userId || null,  // Store userId if available, otherwise null for guest orders
+        userId: userId || null,
         total,
         discount,
         tax,
-        netTotal,  // Make sure this field is included
+        deliveryCharge, // Save delivery charge
+        extraDeliveryCharge, // Save extra delivery charge
+        netTotal,
         status: 'PENDING',
         recipientName: shippingAddress.recipientName,
         streetAddress: shippingAddress.streetAddress,
@@ -82,7 +94,7 @@ export async function POST(request) {
         phoneNumber: shippingAddress.phoneNumber,
         email: shippingAddress.email,
         paymentMethod,
-        paymentInfo: paymentMethod === 'Credit Card' ? JSON.stringify(paymentInfo) : null, // Only include paymentInfo if Credit Card
+        paymentInfo: paymentMethod === 'Credit Card' ? JSON.stringify(paymentInfo) : null,
         couponCode,
         orderItems: {
           create: items.map(item => ({
@@ -97,13 +109,12 @@ export async function POST(request) {
       include: {
         orderItems: {
           include: {
-            product: true,  // Include the product details for each order item
+            product: true,
           },
         },
       },
     });
 
-    // Send back the response with the created order
     return NextResponse.json({ message: 'Order placed successfully', data: createdOrder, status: true }, { status: 200 });
 
   } catch (error) {
@@ -111,6 +122,7 @@ export async function POST(request) {
     return NextResponse.json({ message: 'Failed to place order', error: error.message, status: false }, { status: 500 });
   }
 }
+
 
 
 

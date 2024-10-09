@@ -31,7 +31,16 @@ export async function POST(request) {
       },
     });
 
-    return NextResponse.json({ message: 'Password has been reset successfully.', status: true });
+    // Get the user's role
+    const userRole = user.role || 'customer'; // Assuming there's a role field, fallback to 'customer' if not set
+
+    // Return success message along with the user's role
+    return NextResponse.json({
+      message: 'Password has been reset successfully.',
+      status: true,
+      role: userRole, // Include the role in the response
+    });
+
   } catch (error) {
     console.error('Error resetting password:', error);
     return NextResponse.json({ message: 'Failed to reset password.', status: false }, { status: 500 });

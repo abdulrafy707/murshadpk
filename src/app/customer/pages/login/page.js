@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import {jwtDecode} from 'jwt-decode'; // Import jwt-decode correctly
+import {jwtDecode} from 'jwt-decode'; // Ensure jwt-decode is imported correctly
 import { ThreeDots } from 'react-loader-spinner';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -46,11 +46,15 @@ const LoginForm = () => {
       if (res.ok) {
         toast.success('Login successful! Redirecting...');
         sessionStorage.setItem('authToken', data.token); // Store token in sessionStorage
+        
         const token = data.token;
         const decodedToken = jwtDecode(token);
+        
+        // Store user info in localStorage
         localStorage.setItem('userId', decodedToken.id);
         localStorage.setItem('userName', decodedToken.name);
 
+        // Redirect user based on role
         setTimeout(() => {
           if (decodedToken.role === 'CUSTOMER') {
             window.location.href = '/'; // Redirect customer to the home page

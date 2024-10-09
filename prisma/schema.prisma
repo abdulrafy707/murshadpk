@@ -118,33 +118,36 @@ model Coupon {
 
 
 model Order {
-  id             Int          @id @default(autoincrement())
-  userId         Int?
-  total          Float
-  discount       Float        @default(0.0)
-  tax            Float        @default(0.0)
-  netTotal       Float
-  status         OrderStatus
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  recipientName  String
-  streetAddress  String?
-  apartmentSuite String?
-  city           String
-  state          String
-  zip            String
-  country        String
-  phoneNumber    String
-  email          String
-  paymentMethod  String
-  paymentInfo    Json?
-  orderItems     OrderItem[]
-  couponCode     String?
-  shippingMethod String?
-  shippingTerms  String?
-  shipmentDate   DateTime?
-  deliveryDate   DateTime?
+  id               Int          @id @default(autoincrement())
+  userId           Int?
+  total            Float
+  discount         Float        @default(0.0)
+  tax              Float        @default(0.0)
+  deliveryCharge   Float        @default(0.0)  // Add deliveryCharge
+  extraDeliveryCharge Float     @default(0.0)  // Add extraDeliveryCharge
+  netTotal         Float
+  status           OrderStatus
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  recipientName    String
+  streetAddress    String?
+  apartmentSuite   String?
+  city             String
+  state            String
+  zip              String
+  country          String
+  phoneNumber      String
+  email            String
+  paymentMethod    String
+  paymentInfo      Json?
+  orderItems       OrderItem[]
+  couponCode       String?
+  shippingMethod   String?
+  shippingTerms    String?
+  shipmentDate     DateTime?
+  deliveryDate     DateTime?
 }
+
 
 
 
@@ -197,6 +200,28 @@ model FacebookPixel {
   updatedAt DateTime @updatedAt
 }
 
+model Blogcategories {
+  id          Int      @id @default(autoincrement())
+  title       String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Blog {
+  id                Int      @id @default(autoincrement())
+  title             String
+  description       String   @db.Text
+  image             String
+  category          String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  meta_description  String?
+  meta_title        String?
+  meta_focusKeyword String?
+  web_slug          String?
+}
+
 
 
 
@@ -226,6 +251,7 @@ model Review {
   comment   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  status    String   @default("pending") 
 }
 
 
