@@ -17,9 +17,10 @@ const Footer = () => {
   useEffect(() => {
     const fetchSocialMediaLinks = async () => {
       try {
-        const response = await fetch('/api/socialfirstrecodlink'); // Fetch the first record
+        const response = await fetch('/api/socialfirstrecodlink');
         const data = await response.json();
-
+        console.log('Fetched data:', data);
+  
         if (data.status) {
           setSocialMediaLinks(data.data);
         } else {
@@ -29,9 +30,10 @@ const Footer = () => {
         console.error('Error fetching social media links:', error);
       }
     };
-
+  
     fetchSocialMediaLinks();
   }, []);
+  
 
   return (
     <>
