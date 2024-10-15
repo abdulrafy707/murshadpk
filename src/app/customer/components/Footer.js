@@ -41,7 +41,7 @@ const Footer = () => {
         <div className="flex flex-col gap-2 col-span-4">
           <Link href="/" legacyBehavior>
             <a className="focus:outline-none">
-              <img src="/murshadlogo.png" className="cursor-pointer h-[100px] w-[200px]" alt="murshad Logo" />
+              <img src="/murshadlogo1.jpg" className="cursor-pointer h-[100px] w-[200px]" alt="murshad Logo" />
             </a>
           </Link>
           <p className="text-[15px] font-[400] md:mr-10 sm:mr-10 lg:mr-10 xl:mr-10 text-justify">
