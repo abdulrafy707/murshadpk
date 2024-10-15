@@ -406,52 +406,62 @@ const ProductPage = ({ productData }) => {
               <p className="text-gray-500">No reviews yet. Be the first to leave a review!</p>
             )}
 
-            {/* Add Review Form */}
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold mb-4">Leave a Review</h3>
-              <form onSubmit={handleReviewSubmit}>
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="rating">
-                    Rating
-                  </label>
-                  <select
-                    id="rating"
-                    value={rating}
-                    onChange={(e) => setRating(Number(e.target.value))}
-                    className="w-full p-2 border border-gray-300 rounded"
-                    required
-                  >
-                    <option value="">Select Rating</option>
-                    <option value="1">1 Star</option>
-                    <option value="2">2 Stars</option>
-                    <option value="3">3 Stars</option>
-                    <option value="4">4 Stars</option>
-                    <option value="5">5 Stars</option>
-                  </select>
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="comment">
-                    Comment
-                  </label>
-                  <textarea
-                    id="comment"
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded"
-                    rows="4"
-                    placeholder="Write your review..."
-                    required
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white py-2 px-4 rounded"
-                  disabled={reviewLoading}
-                >
-                  {reviewLoading ? 'Submitting...' : 'Submit Review'}
-                </button>
-              </form>
-            </div>
+            
+<div className="mt-8">
+  <h3 className="text-lg font-semibold mb-4">Leave a Review</h3>
+
+  {/* Check if user is logged in */}
+  {localStorage.getItem('userName') ? (
+    <form onSubmit={handleReviewSubmit}>
+      <div className="mb-4">
+        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="rating">
+          Rating
+        </label>
+        <select
+          id="rating"
+          value={rating}
+          onChange={(e) => setRating(Number(e.target.value))}
+          className="w-full p-2 border border-gray-300 rounded"
+          required
+        >
+          <option value="">Select Rating</option>
+          <option value="1">1 Star</option>
+          <option value="2">2 Stars</option>
+          <option value="3">3 Stars</option>
+          <option value="4">4 Stars</option>
+          <option value="5">5 Stars</option>
+        </select>
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="comment">
+          Comment
+        </label>
+        <textarea
+          id="comment"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded"
+          rows="4"
+          placeholder="Write your review..."
+          required
+        />
+      </div>
+      <button
+        type="submit"
+        className="bg-blue-500 text-white py-2 px-4 rounded"
+        disabled={reviewLoading}
+      >
+        {reviewLoading ? 'Submitting...' : 'Submit Review'}
+      </button>
+    </form>
+  ) : (
+    // Show this statement if the user is not logged in
+    <p className="text-gray-500">
+      If you want to leave a review, please <a href="/customer/pages/login" className="text-blue-500">log in</a>.
+    </p>
+  )}
+</div>
+
           </div>
         </div>
       </div>

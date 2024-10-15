@@ -42,7 +42,7 @@ const ReviewableTable = ({ reviews = [], fetchReviews, products = [] }) => {
       let response;
       if (newReview.id) {
         // If the review has an ID, it's an existing review, so use PUT for updating
-        response = await fetch(`/api/reviews?id=${newReview.id}`, {
+        response = await fetch(`/api/reviews/${newReview.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -81,22 +81,27 @@ const ReviewableTable = ({ reviews = [], fetchReviews, products = [] }) => {
     setIsLoading(false);
   };
   
-
+  
   const handleDeleteItem = async (id) => {
-    setIsLoading(true);
     try {
-      await fetch(`/api/reviews/${id}`, {
+      const response = await fetch(`/api/reviews/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
       });
+  
+      if (!response.ok) {
+        throw new Error('Failed to delete item');
+      }
+  
       fetchReviews(); // Refresh the data after deleting
     } catch (error) {
       console.error('Error deleting item:', error);
     }
-    setIsLoading(false);
   };
+  
+  
 
   const handleEditItem = (item) => {
     setNewReview({

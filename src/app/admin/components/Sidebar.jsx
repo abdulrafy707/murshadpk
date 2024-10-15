@@ -45,7 +45,7 @@ const Sidebar = ({ setActiveComponent }) => {
   };
 
   return (
-    <div className="bg-gray-700 text-white min-h-screen flex flex-col text-sm" style={{ width: '250px' }}>
+    <div className="bg-gray-700 text-white flex flex-col text-sm" style={{ width: '250px', height: '100vh', overflowY: 'auto' }}>
       <div className="p-4 text-center">
         <img width={100} height={100} src="/murshadlogo.png" alt="Profile" className="rounded-full mx-auto mb-2" />
         <h2 className="text-lg font-semibold">Murshapk</h2>
