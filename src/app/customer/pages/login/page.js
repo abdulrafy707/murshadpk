@@ -88,7 +88,7 @@ const LoginForm = () => {
       <div className={`bg-white p-8 rounded-lg w-full max-w-xl ${loading ? 'opacity-50' : ''}`}>
         <ToastContainer />
         <div className="flex justify-center flex-col items-center mb-6">
-          <img className="w-40" src="/murshadlogo.png" alt="Logo" />
+          <img className="w-40" src="/murshadlogo1.jpg" alt="Logo" />
           <h2 className="text-3xl font-bold mt-4">User Login</h2>
         </div>
         <form onSubmit={handleSubmit}>
