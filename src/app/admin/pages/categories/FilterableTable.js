@@ -157,7 +157,7 @@ const FilterableTable = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className=" bg-gray-100 min-h-screen">
       {isLoading && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="text-white text-xl">Loading...</div>
@@ -206,6 +206,7 @@ const FilterableTable = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
                 
@@ -219,6 +220,7 @@ const FilterableTable = () => {
               {Array.isArray(filteredData) && filteredData.length > 0 ? (
                 filteredData.map((item, index) => (
                   <tr key={item.slug} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {item.imageUrl && <img src={`https://murshadpkdata.advanceaitool.com/uploads/${item.imageUrl}`} alt={item.name} className="w-16 h-16 object-cover" />}
                     </td>

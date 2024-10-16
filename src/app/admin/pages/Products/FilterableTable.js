@@ -315,11 +315,11 @@ const FilterableTable = ({
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className=" bg-gray-100 min-h-screen">
       {/* Confirmation Popup */}
       {isPopupVisible && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-md">
+          <div className="bg-white  rounded-lg shadow-lg w-[99%] max-w-md">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
               Are you sure?
             </h2>
@@ -392,6 +392,9 @@ const FilterableTable = ({
           <table className="min-w-full divide-y divide-gray-200 w-full">
             <thead className="bg-gray-50">
               <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ID
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Image
                 </th>
@@ -419,12 +422,16 @@ const FilterableTable = ({
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
+            
               {Array.isArray(filteredData) &&
                 filteredData.map((item, index) => (
                   <tr
                     key={item.slug}
                     className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
                   >
+                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {item.id}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
   {item.images && item.images.length > 0 ? (
     <>

@@ -29,7 +29,7 @@ export default function CustomerPage () {
   }, []);
 
   return (
-    <div className="container w-full mx-auto p-4 max-w-5xl">
+    <div className="container w-full mx-auto  max-w-5xl">
       {isLoading ? (
         <div className="text-center text-2xl">Loading...</div>
       ) : (

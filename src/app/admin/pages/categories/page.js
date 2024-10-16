@@ -74,12 +74,12 @@ const ProductsPage = () => {
   console.log('Categories:', categories); // Debugging information
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto ">
       {isLoading ? (
         <div className="text-center text-2xl">Loading...</div>
       ) : (
         <>
-          <div className="flex space-x-4 overflow-x-auto mb-4">
+          {/* <div className="flex space-x-4 overflow-x-auto mb-4">
             {Array.isArray(categories) && categories.length > 0 ? (
               categories.map((category) => (
                 <button
@@ -93,7 +93,7 @@ const ProductsPage = () => {
             ) : (
               <div>No categories found</div>
             )}
-          </div>
+          </div> */}
           <FilterableTable
             products={products}
             fetchCategories={() => fetchData(selectedCategory)}

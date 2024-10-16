@@ -218,7 +218,7 @@ const fetchCategories = async () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">slug</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
@@ -232,6 +232,7 @@ const fetchCategories = async () => {
               {Array.isArray(filteredData) && filteredData.length > 0 ? (
                 filteredData.map((item, index) => (
                   <tr key={item.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.id}</td>
                     
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.slug}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -280,115 +281,118 @@ const fetchCategories = async () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed pt-10 inset-0 h-[99vh] overflow-y-auto flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-4 w-[700px] rounded shadow-lg">
-            <h2 className="text-xl mb-4">{newSubcategory.id ? 'Edit Subcategory' : 'Add New Sub Category'}</h2>
-            <div className="mb-4 mt-8">
-              <label className="block text-sm font-medium text-gray-700">Name</label>
-              <input
-                type="text"
-                value={newSubcategory.name}
-                onChange={(e) => {
-                  setNewSubcategory({ ...newSubcategory, name: e.target.value });
-                }}
-                className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="mb-4">
-  <label className="block text-sm font-medium text-gray-700">Slug</label>
-  <input
-    type="text"
-    value={newSubcategory.slug}
-    onChange={(e) => {
-      const updatedSlug = e.target.value.replace(/\s+/g, '-'); // Replace spaces with dashes
-      setNewSubcategory({ ...newSubcategory, slug: updatedSlug });
-    }}
-    className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-  />
-</div>
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-3xl max-h-[90vh] overflow-auto">
+      <h2 className="text-xl mb-4">{newSubcategory.id ? 'Edit Subcategory' : 'Add New Sub Category'}</h2>
+      
+      <div className="mb-4 mt-8">
+        <label className="block text-sm font-medium text-gray-700">Name</label>
+        <input
+          type="text"
+          value={newSubcategory.name}
+          onChange={(e) => setNewSubcategory({ ...newSubcategory, name: e.target.value })}
+          className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Category</label>
-              <select
-                value={newSubcategory.categoryId}
-                onChange={(e) => setNewSubcategory({ ...newSubcategory, categoryId: e.target.value })}
-                className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Category</option>
-                {Array.isArray(categories) &&
-                  categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-              </select>
-            </div>
-            {newSubcategory.imageUrl && (
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Current Image</label>
-                <img
-                  src={`https://murshadpkdata.advanceaitool.com/uploads/${newSubcategory.imageUrl}`}
-                  alt={newSubcategory.name}
-                  className="w-32 h-32 object-cover mb-2"
-                />
-              </div>
-            )}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">New Image</label>
-              <input
-                type="file"
-                onChange={(e) => setImage(e.target.files[0])}
-                className="mt-1 p-2 border border-gray-300 rounded w-full"
-              />
-            </div>
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">Slug</label>
+        <input
+          type="text"
+          value={newSubcategory.slug}
+          onChange={(e) => {
+            const updatedSlug = e.target.value.replace(/\s+/g, '-');
+            setNewSubcategory({ ...newSubcategory, slug: updatedSlug });
+          }}
+          className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
 
-            {/* Meta fields for subcategories */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Meta Title</label>
-              <input
-                type="text"
-                value={newSubcategory.meta_title}
-                onChange={(e) => setNewSubcategory({ ...newSubcategory, meta_title: e.target.value })}
-                className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">Category</label>
+        <select
+          value={newSubcategory.categoryId}
+          onChange={(e) => setNewSubcategory({ ...newSubcategory, categoryId: e.target.value })}
+          className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Select Category</option>
+          {Array.isArray(categories) &&
+            categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+        </select>
+      </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Meta Description</label>
-              <textarea
-                value={newSubcategory.meta_description}
-                onChange={(e) => setNewSubcategory({ ...newSubcategory, meta_description: e.target.value })}
-                className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Meta Keywords</label>
-              <input
-                type="text"
-                value={newSubcategory.meta_keywords}
-                onChange={(e) => setNewSubcategory({ ...newSubcategory, meta_keywords: e.target.value })}
-                className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddNewItem}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              >
-                {newSubcategory.id ? 'Update' : 'Add'}
-              </button>
-            </div>
-          </div>
+      {newSubcategory.imageUrl && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Current Image</label>
+          <img
+            src={`https://murshadpkdata.advanceaitool.com/uploads/${newSubcategory.imageUrl}`}
+            alt={newSubcategory.name}
+            className="w-32 h-32 object-cover mb-2"
+          />
         </div>
       )}
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">New Image</label>
+        <input
+          type="file"
+          onChange={(e) => setImage(e.target.files[0])}
+          className="mt-1 p-2 border border-gray-300 rounded w-full"
+        />
+      </div>
+
+      {/* Meta fields */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">Meta Title</label>
+        <input
+          type="text"
+          value={newSubcategory.meta_title}
+          onChange={(e) => setNewSubcategory({ ...newSubcategory, meta_title: e.target.value })}
+          className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">Meta Description</label>
+        <textarea
+          value={newSubcategory.meta_description}
+          onChange={(e) => setNewSubcategory({ ...newSubcategory, meta_description: e.target.value })}
+          className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">Meta Keywords</label>
+        <input
+          type="text"
+          value={newSubcategory.meta_keywords}
+          onChange={(e) => setNewSubcategory({ ...newSubcategory, meta_keywords: e.target.value })}
+          className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div className="flex justify-end space-x-2">
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleAddNewItem}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          {newSubcategory.id ? 'Update' : 'Add'}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
