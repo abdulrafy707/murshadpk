@@ -171,15 +171,15 @@ const FilterableCustomerTable = ({ customers, fetchCustomers }) => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className=" bg-gray-100  min-h-screen">
       {isLoading && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="text-white text-xl">Loading...</div>
         </div>
       )}
-      <div className="bg-white shadow rounded-lg p-4 relative">
+      <div className="bg-white shadow rounded-lg w-full relative">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Customers List</h2>
+          <h2 className="text-xl pl-4 font-semibold text-gray-800">Customers List</h2>
           <div className="flex space-x-2">
             <button
               className="text-gray-600 hover:text-gray-900 focus:outline-none"

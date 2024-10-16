@@ -1,6 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation'; // for redirecting users
 import { 
   FaUsers, 
   FaSignOutAlt, 
@@ -14,7 +15,7 @@ import {
   FaTicketAlt, 
   FaImages, 
   FaStar, 
-  FaBlog // Import FaBlog for blog icon (can be adjusted)
+  FaBlog 
 } from 'react-icons/fa';
 
 const Sidebar = ({ setActiveComponent }) => {
@@ -29,8 +30,19 @@ const Sidebar = ({ setActiveComponent }) => {
     coupons: false,
     sliders: false, 
     socialmedia: false, 
-    blog: false // Added blog state
+    blog: false
   });
+  
+  const router = useRouter(); // useRouter for navigation
+
+  // Check if the user is authenticated
+  useEffect(() => {
+    const token = Cookies.get('token') || localStorage.getItem('token');
+    if (!token) {
+      // Redirect to the login page if not authenticated
+      router.push('/admin');
+    }
+  }, [router]);
 
   const toggleDropdown = (key) => {
     setIsDropdownOpen((prevState) => ({
@@ -39,8 +51,13 @@ const Sidebar = ({ setActiveComponent }) => {
     }));
   };
 
+  // Handle logout
   const handleLogout = () => {
+    // Remove the token from cookies and localStorage
     Cookies.remove('token');
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    // Redirect to the login page
     window.location.href = '/admin';
   };
 

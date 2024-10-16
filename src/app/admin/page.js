@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { FiUser, FiMail, FiLock, FiPhone, FiHome } from 'react-icons/fi';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -17,30 +16,44 @@ const LoginPage = () => {
     password: '',
     phoneno: '',
     city: '',
-    role: 'ADMIN', // or 'ADMIN'
+    role: 'ADMIN', // Default role can be ADMIN or CUSTOMER
     image: null,
     base64: '',
   });
 
   const router = useRouter();
 
+  // Check if a token already exists in localStorage
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Redirect to the appropriate page based on stored role
+      const userRole = localStorage.getItem('role');
+      if (userRole === 'ADMIN') {
+        router.push('/admin/pages/Products');
+      } else if (userRole === 'CUSTOMER') {
+        router.push('/customer/pages/login');
+      }
+    }
+  }, [router]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
     try {
       const response = await axios.post('/api/login', { email, password });
       if (response.data.success) {
-        localStorage.setItem('token', response.data.token); // Store JWT token in localStorage
-        const { role } = response.data.user;
-  
-        if (role === 'ADMIN') {
+        const { token, user } = response.data;
+        localStorage.setItem('token', token); // Store JWT token in localStorage
+        localStorage.setItem('role', user.role); // Store user role in localStorage
+
+        if (user.role === 'ADMIN') {
           alert('Login Successfully');
-          console.log('Redirecting to admin page...');
           router.push('/admin/pages/Products');
-        } else if (role === 'CUSTOMER') {
+        } else if (user.role === 'CUSTOMER') {
           alert('This ID exists for a customer');
-          localStorage.removeItem('token'); // Delete JWT token from localStorage
           router.push('/customer/pages/login');
         } else {
           setError('Unknown role. Please contact support.');
@@ -49,16 +62,12 @@ const LoginPage = () => {
         setError(response.data.message || 'Failed to log in. Please try again.');
       }
     } catch (error) {
-      // Log the error for debugging, but don't expose sensitive details
       console.error('Error logging in:', error.message);
-  
-      // Set a user-friendly error message
       setError('Failed to log in. Please check your credentials and try again.');
     } finally {
       setLoading(false);
     }
   };
-  
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -171,16 +180,6 @@ const LoginPage = () => {
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
-          {/* <div className="mt-4 text-center">
-            <p className="text-gray-700">Don't have an account?</p>
-            <button
-              type="button"
-              onClick={() => setIsRegistering(true)}
-              className="w-full mt-2 py-2 rounded-md text-white bg-green-500 hover:bg-green-600"
-            >
-              Register
-            </button>
-          </div> */}
         </form>
       ) : (
         <form className="bg-white p-8 rounded shadow-md w-full max-w-md" onSubmit={handleRegister}>
