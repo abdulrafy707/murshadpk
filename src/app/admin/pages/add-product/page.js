@@ -173,12 +173,24 @@ const AddProductPageContent = () => {
   };
 
   const handleAddNewItem = async () => {
-    if (!newProduct.name.trim() || 
-        !newProduct.richDescription.trim() || 
-        !newProduct.price || 
-        !newProduct.stock || 
-        !newProduct.subcategorySlug) {
-      alert("All fields are required");
+    // List of required fields
+    const requiredFields = [
+      { name: 'name', label: 'Product Name' },
+      { name: 'slug', label: 'Slug' },
+      { name: 'richDescription', label: 'Description' },
+      { name: 'price', label: 'Price' },
+      { name: 'stock', label: 'Stock' },
+      { name: 'categorySlug', label: 'Category' },
+      { name: 'subcategorySlug', label: 'Subcategory' },
+    ];
+  
+    // Find missing fields
+    const missingFields = requiredFields
+      .filter(field => !newProduct[field.name].trim())
+      .map(field => field.label);
+  
+    if (missingFields.length > 0) {
+      alert(`Please fill in the following fields: ${missingFields.join(', ')}`);
       return;
     }
   
@@ -190,7 +202,7 @@ const AddProductPageContent = () => {
       const existingData = await existingProductResponse.json();
   
       if (existingData.status === false) {
-        alert("Product with this slug already exists.");
+        alert('Product with this slug already exists.');
         setIsLoading(false);
         return;
       }
@@ -209,7 +221,7 @@ const AddProductPageContent = () => {
           const result = await response.json();
           if (response.ok) {
             const imageFileName = result.image_url; // Get only the filename from the response
-            console.log("Image saved with filename:", imageFileName); // Log the saved filename
+            console.log('Image saved with filename:', imageFileName); // Log the saved filename
             return imageFileName; // Ensure that only the filename is returned
           } else {
             throw new Error(result.error || 'Failed to upload image');
@@ -218,7 +230,7 @@ const AddProductPageContent = () => {
       );
   
       // Prepend the base URL to the image filenames when sending the product data
-      const imageUrls = uploadedImages.map(filename => `${filename}`);
+      const imageUrls = uploadedImages.map((filename) => `${filename}`);
   
       const productToSubmit = {
         ...newProduct,
@@ -226,8 +238,8 @@ const AddProductPageContent = () => {
         price: parseFloat(newProduct.price),
         stock: parseInt(newProduct.stock, 10),
         subcategorySlug: newProduct.subcategorySlug,
-        colors: JSON.stringify(newProduct.colors.map(color => color.value)),
-        sizes: JSON.stringify(newProduct.sizes.map(size => size.value)),
+        colors: JSON.stringify(newProduct.colors.map((color) => color.value)),
+        sizes: JSON.stringify(newProduct.sizes.map((size) => size.value)),
         images: imageUrls, // Send full URLs for validation
         discount: newProduct.discount ? roundToTwoDecimalPlaces(parseFloat(newProduct.discount)) : null,
         isTopRated: newProduct.isTopRated,
