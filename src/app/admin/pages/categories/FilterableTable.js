@@ -286,7 +286,7 @@ const FilterableTable = () => {
             {newCategory.imageUrl && (
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">Current Image</label>
-                <img src={`https://murshadpkdata.advanceaitool.com/uploads/${newCategory.imageUrl}`} alt={newCategory.name} className="w-32 h-32 object-cover mb-2" />
+                <img src={`https://murshadpkdata.advanceaitool.com/${newCategory.imageUrl}`} alt={newCategory.name} className="w-32 h-32 object-cover mb-2" />
               </div>
             )}
             <div className="mb-4">

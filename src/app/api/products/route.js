@@ -5,6 +5,7 @@ import prisma from '../../util/prisma';
 export async function POST(request) {
   try {
     const {
+      
       name,
       slug,
       description,
