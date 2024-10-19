@@ -173,11 +173,11 @@ const FilterableTable = ({
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
+  
     try {
-      // Handle new image uploads
+      // Handle new image uploads using productForm.images
       const uploadedImages = await Promise.all(
-        [...fileInputRef.current.files].map(async (file) => {
+        productForm.images.map(async (file) => {
           const imageBase64 = await convertToBase64(file);
           console.log("Uploading image:", file.name); // Log image details
           const response = await fetch(
@@ -192,19 +192,22 @@ const FilterableTable = ({
           );
           const result = await response.json();
           if (response.ok) {
-            console.log("Uploaded image URL:", `https://murshadpkdata.advanceaitool.com/uploads/${result.image_url}`);
+            console.log(
+              "Uploaded image URL:",
+              `https://murshadpkdata.advanceaitool.com/uploads/${result.image_url}`
+            );
             return result.image_url; // Return relative path
           } else {
             throw new Error(result.error || 'Failed to upload image');
           }
         })
       );
-
+  
       const stockValue = parseInt(productForm.stock, 10);
-
+  
       // Extract relative image paths from existingImages
       const existingRelativeImages = existingImages; // These are already relative paths
-
+  
       const productData = {
         ...productForm,
         stock: isNaN(stockValue) ? 0 : stockValue,
@@ -221,9 +224,9 @@ const FilterableTable = ({
         meta_keywords: productForm.meta_keywords,
         subcategorySlug: productForm.subcategorySlug, // Ensure subcategorySlug is included
       };
-
+  
       console.log("Product data being sent to API:", productData);
-
+  
       const response = await fetch(`/api/products/${editProduct.slug}`, {
         method: 'PUT',
         headers: {
@@ -231,7 +234,7 @@ const FilterableTable = ({
         },
         body: JSON.stringify(productData),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         console.log("Update response from API:", data);
@@ -266,6 +269,7 @@ const FilterableTable = ({
     }
     setIsLoading(false);
   };
+  
 
   const handleCancelEdit = () => {
     setEditProduct(null);
