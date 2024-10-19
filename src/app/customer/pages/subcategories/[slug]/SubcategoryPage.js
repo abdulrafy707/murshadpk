@@ -1,5 +1,3 @@
-// src/pages/subcategory/[slug].js
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -21,52 +19,52 @@ const SubcategoryPage = () => {
 
   useEffect(() => {
     const fetchProductsAndSubcategory = async () => {
-      setIsLoading(true);
+      setIsLoading(true); // Start loading
       try {
         // Fetch all products
-        const productsResponse = await axios.get('/api/products'); // Ensure this endpoint is correct
-        console.log('Products API response:', productsResponse.data); // Log the entire response
-
-        // Validate the response structure
-        if (!productsResponse.data || !Array.isArray(productsResponse.data)) {
-          throw new Error('Invalid products data.');
-        }
+        const productsResponse = await axios.get('/api/products');
+        console.log('Products API response:', productsResponse.data);
 
         // Set all products
         setProducts(productsResponse.data);
 
+        // Log the slug and filtered products
+        console.log("Current slug:", slug);
+
         // Filter products by subcategorySlug matching the slug from the URL
         const filtered = productsResponse.data.filter(product => product.subcategorySlug === slug);
-        setFilteredProducts(filtered); // Set filtered products
+        console.log("Filtered products for slug:", slug, filtered); // Log filtered products
 
-        // Find the highest price in the filtered products and set it as the max price
         if (filtered.length > 0) {
+          // Set the filtered products
+          setFilteredProducts(filtered);
+
+          // Find the highest price in the filtered products
           const maxProductPrice = Math.max(...filtered.map(product => product.price), 0);
-          setMaxPrice(maxProductPrice);
-          setHighestPrice(maxProductPrice); // Update highest price for display
+          setHighestPrice(maxProductPrice); // Update the highest price
         } else {
-          setMaxPrice(0);
-          setHighestPrice(0);
+          setFilteredProducts([]); // If no products are found, reset filtered products
         }
 
-        // Fetch subcategory details
-        if (slug) {
-          const subcategoryResponse = await axios.get(`/api/subcategories?slug=${slug}`);
-          if (subcategoryResponse.data && subcategoryResponse.data.slug) {
-            setSubcategory(subcategoryResponse.data); // Set subcategory details
-          } else {
-            setSubcategory(null);
-          }
+        // Fetch subcategory data (assuming subcategory API exists)
+        const subcategoryResponse = await axios.get(`/api/subcatdetail/${slug}`);
+        if (subcategoryResponse.data && subcategoryResponse.data.status) {
+          setSubcategory(subcategoryResponse.data.data);
         }
       } catch (error) {
-        console.error('Error fetching subcategory data:', error.message);
+        console.error('Error fetching subcategory or products data:', error.message);
       } finally {
-        setIsLoading(false);
+        setIsLoading(false); // Stop loading when done
       }
     };
 
     fetchProductsAndSubcategory();
   }, [slug]);
+
+  const handleProductClick = (productSlug) => {
+    console.log(`Redirecting to product page for: ${productSlug}`); // Log before redirect
+    router.push(`/customer/pages/products/${productSlug}`);
+  };
 
   const formatPrice = (price) => {
     return price.toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -79,10 +77,7 @@ const SubcategoryPage = () => {
     setFilteredProducts(filtered);
   };
 
-  const handleProductClick = (slug) => {
-    router.push(`/customer/pages/products/${slug}`);
-  };
-
+  // Display loading spinner when data is still being fetched
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -120,7 +115,7 @@ const SubcategoryPage = () => {
             className="border border-gray-300 p-2 rounded w-full sm:w-auto"
             placeholder="Max"
             min="0"
-            max={highestPrice} // Set the max attribute to the highest product price
+            max={highestPrice}
           />
         </div>
         <div className="flex items-end">
@@ -163,15 +158,6 @@ const SubcategoryPage = () => {
                       No Image
                     </div>
                   )}
-                  <button
-                    className="absolute bottom-2 right-2 bg-teal-500 text-white h-8 w-8 flex justify-center items-center rounded-full shadow-lg hover:bg-teal-600 transition-colors duration-300"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent triggering the card's click event
-                      handleProductClick(product.slug);
-                    }}
-                  >
-                    <span className="text-xl font-bold leading-none">+</span>
-                  </button>
                 </div>
                 <div className="px-2">
                   <div className="flex items-center justify-between py-2">

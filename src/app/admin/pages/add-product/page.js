@@ -185,9 +185,11 @@ const AddProductPageContent = () => {
     ];
   
     // Find missing fields
-    const missingFields = requiredFields
-      .filter(field => !newProduct[field.name].trim())
-      .map(field => field.label);
+   // Find missing fields
+const missingFields = requiredFields
+.filter(field => typeof newProduct[field.name] === 'string' && !newProduct[field.name].trim()) // Ensure it's a string before trimming
+.map(field => field.label);
+
   
     if (missingFields.length > 0) {
       alert(`Please fill in the following fields: ${missingFields.join(', ')}`);

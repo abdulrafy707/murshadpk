@@ -7,6 +7,7 @@ const generateSlug = (name) => {
 };
 
 // Get subcategories by category slug
+// Get subcategories by category slug
 export async function GET(request, { params }) {
   try {
     console.log('Request parameters:', params);
@@ -20,27 +21,40 @@ export async function GET(request, { params }) {
       );
     }
 
-    // Fetch subcategory by slug
-    const subcategory = await prisma.subcategory.findUnique({
+    // Fetch the category by slug first
+    const category = await prisma.category.findUnique({
       where: { slug },
     });
 
-    if (!subcategory) {
+    if (!category) {
       return NextResponse.json(
-        { message: `Subcategory with slug "${slug}" not found`, status: false },
+        { message: `Category with slug "${slug}" not found`, status: false },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ status: true, data: subcategory });
+    // Fetch subcategories by categoryId
+    const subcategories = await prisma.subcategory.findMany({
+      where: { categoryId: category.id },
+    });
+
+    if (!subcategories || subcategories.length === 0) {
+      return NextResponse.json(
+        { message: `No subcategories found for category "${slug}"`, status: false },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ status: true, data: subcategories });
   } catch (error) {
-    console.error('Error in fetching subcategory:', error.message);
+    console.error('Error in fetching subcategories:', error.message);
     return NextResponse.json(
-      { message: 'Failed to fetch subcategory', status: false, error: error.message },
+      { message: 'Failed to fetch subcategories', status: false, error: error.message },
       { status: 500 }
     );
   }
 }
+
 
 // Update subcategory by slug
 // export async function PUT(request, { params }) {

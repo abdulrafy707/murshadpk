@@ -4,12 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import { ThreeDots } from 'react-loader-spinner'; // Import the loading spinner
 
 // Function to fetch subcategories by category slug
 const fetchSubcategoriesByCategorySlug = async (categorySlug) => {
   try {
     const response = await axios.get(`/api/subcategories/${categorySlug}`);
-    console.log('Fetched subcategories:', response.data.data); // Log the response data array
+    console.log('Full API response:', response); // Log the full API response
     return response.data.data; // Return the subcategories data
   } catch (error) {
     console.error('Error fetching subcategories:', error);
@@ -30,8 +31,9 @@ const CategoryPage = ({ categoryData }) => {
     const fetchSubcategories = async () => {
       try {
         const subcategoriesData = await fetchSubcategoriesByCategorySlug(slug); // Fetch subcategories by slug
-        console.log("Subcategories Data:", subcategoriesData); // Log the fetched subcategories
-        setSubcategories(Array.isArray(subcategoriesData) ? subcategoriesData : [subcategoriesData]); // Ensure it's an array
+        console.log("Subcategories Data before setting state:", subcategoriesData); // Log the fetched subcategories
+        setSubcategories(subcategoriesData); // Set the fetched subcategories
+        console.log("Subcategories State after setting:", subcategories); // Log after setting the state
       } catch (err) {
         setError('Failed to fetch subcategories');
         console.error(err);
@@ -50,12 +52,16 @@ const CategoryPage = ({ categoryData }) => {
     router.push(`/customer/pages/subcategories/${subcategorySlug}`);
   };
   
-
   // Background colors for subcategory cards
   const backgroundColors = ['bg-red-100', 'bg-green-100', 'bg-blue-100', 'bg-pink-100', 'bg-gray-100', 'bg-yellow-100'];
 
+  // Display loading spinner when data is still being fetched
   if (isLoading) {
-    return <div>Loading subcategories...</div>; // Show loading message
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <ThreeDots height="80" width="80" radius="9" color="#3498db" ariaLabel="three-dots-loading" visible={true} />
+      </div>
+    );
   }
 
   if (error) {
@@ -63,11 +69,12 @@ const CategoryPage = ({ categoryData }) => {
   }
 
   // Log subcategories to ensure they are being set in the state
-  console.log("Subcategories State:", subcategories);
+  console.log("Subcategories State in render:", subcategories);
 
   return (
     <div className="container mx-auto px-4 py-8 bg-white">
       <h2 className="text-2xl font-semibold mb-6">{categoryData?.name || 'Category'} Subcategories</h2>
+      
       {subcategories && subcategories.length > 0 ? ( // Check if subcategories array exists and has length
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {subcategories.map((subcategory, index) => (

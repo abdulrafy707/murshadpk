@@ -191,7 +191,7 @@ const FilterableTable = ({ subcategories = [], fetchSubcategories }) => {
           <div className="text-white text-xl">Loading...</div>
         </div>
       )}
-      <div className="bg-white shadow rounded-lg relative">
+      <div className="bg-white shadow rounded-lg pb-8 relative">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">Sub Categories List</h2>
           <div className="flex space-x-2">

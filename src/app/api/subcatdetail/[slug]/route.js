@@ -44,7 +44,6 @@ import prisma from '@/app/util/prisma';  // Ensure this path is correct based on
 // }
 
 
-
 export async function GET(request, { params }) {
   try {
     const { slug } = params; // Extract the slug from the URL parameters
@@ -57,32 +56,28 @@ export async function GET(request, { params }) {
       );
     }
 
-    // Fetch the specific subcategory by slug, including category if needed
-    const category = await prisma.category.findUnique({
-      where: { slug },  // Find the category by slug
-      include: {
-        subcategories: true,  // Fetch all related subcategories
-      },
+    // Fetch the specific subcategory by slug
+    const subcategory = await prisma.subcategory.findUnique({
+      where: { slug },  // Use the slug to find the subcategory
     });
 
-    // If no category is found, return a 404 response
-    if (!category || !category.subcategories) {
+    // If no subcategory is found, return a 404 response
+    if (!subcategory) {
       return NextResponse.json(
-        { message: `Category with slug "${slug}" not found or has no subcategories`, status: false },
+        { message: `Subcategory with slug "${slug}" not found`, status: false },
         { status: 404 }  // Not found
       );
     }
 
-    // Return the subcategories
-    return NextResponse.json({ status: true, data: category.subcategories });
+    // Successfully fetched the subcategory, return the data
+    return NextResponse.json({ status: true, data: subcategory });
   } catch (error) {
-    console.error(`Error fetching subcategories for category with slug "${slug}":`, error.message);
+    console.error(`Error fetching subcategory with slug "${slug}":`, error.message);
     
     // Return a 500 response for server-side errors
     return NextResponse.json(
-      { message: 'Failed to fetch subcategories', status: false, error: error.message },
+      { message: 'Failed to fetch subcategory', status: false, error: error.message },
       { status: 500 }  // Internal server error
     );
   }
 }
-

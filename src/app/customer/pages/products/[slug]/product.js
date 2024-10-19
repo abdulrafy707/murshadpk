@@ -36,24 +36,26 @@ const ProductPage = ({ productData }) => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
+        setLoading(true); // Start loading when fetching starts
         const response = await axios.get(`/api/products?slug=${product.slug}`);
         const { product: fetchedProduct, relatedProducts } = response.data.data;
-
+  
         setSizes(JSON.parse(fetchedProduct.sizes || '[]'));
         setColors(JSON.parse(fetchedProduct.colors || '[]'));
         setProduct(fetchedProduct);
         setRelatedProducts(relatedProducts);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching product:', error);
-        setLoading(false);
+      } finally {
+        setLoading(false); // Stop loading when data is fetched
       }
     };
-
+  
     if (product.slug) {
       fetchProduct();
     }
   }, [product.slug]);
+  
 
   // Fetch reviews for the product
   useEffect(() => {
@@ -190,6 +192,17 @@ const ProductPage = ({ productData }) => {
     setIsModalOpen(false);
     router.push('/');
   };
+
+
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <ThreeDots height="80" width="80" radius="9" color="#3498db" ariaLabel="three-dots-loading" visible={true} />
+      </div>
+    );
+  }
+
 
   return (
     <div className="container mx-auto px-4">
