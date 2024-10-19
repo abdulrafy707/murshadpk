@@ -50,7 +50,7 @@ const SubcategoriesPage = () => {
   }, []);
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto ">
       {isLoading ? (
         <div className="text-center text-2xl">Loading...</div>
       ) : (
