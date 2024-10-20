@@ -19,7 +19,8 @@ const Footer = () => {
 useEffect(() => {
   const fetchSocialMediaLinks = async () => {
     try {
-      const response = await fetch('/api/socialfirstrecodlink', { cache: 'no-store' });
+      // Adding a query parameter with the current timestamp to avoid cache
+      const response = await fetch(`/api/socialfirstrecodlink?_=${new Date().getTime()}`, { cache: 'no-store' });
       const data = await response.json();
       if (data.status) {
         setSocialMediaLinks(data.data);
@@ -32,6 +33,7 @@ useEffect(() => {
       setLoading(false);
     }
   };
+  
   fetchSocialMediaLinks();
 }, []);
 

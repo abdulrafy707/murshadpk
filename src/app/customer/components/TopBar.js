@@ -21,20 +21,21 @@ const TopBar = () => {
     // Fetch social media links from the database
     const fetchSocialMediaLinks = async () => {
       try {
-        const response = await fetch('/api/socialfirstrecodlink', { cache: 'no-store' });
+        // Adding a query parameter with the current timestamp to avoid cache
+        const response = await fetch(`/api/socialfirstrecodlink?_=${new Date().getTime()}`, { cache: 'no-store' });
         const data = await response.json();
-
         if (data.status) {
-          setSocialMediaLinks(data.data); // Set the links state with fetched data
+          setSocialMediaLinks(data.data);
         } else {
           console.error('Failed to fetch social media links');
         }
       } catch (error) {
         console.error('Error fetching social media links:', error);
       } finally {
-        setLoading(false); // Stop loading after fetch
+        setLoading(false);
       }
     };
+    
 
     fetchSocialMediaLinks(); // Call the function to fetch links
   }, []);
