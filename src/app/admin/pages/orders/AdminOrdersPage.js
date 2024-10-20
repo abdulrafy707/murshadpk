@@ -97,7 +97,7 @@ const totalTax = order.tax ?? 0; // Directly use tax amount from order
 const total = subtotalLessDiscount + totalTax + (order.deliveryCharge ?? 0) + (order.extraDeliveryCharge ?? 0) + (order.otherCharges ?? 0);
 
   return (
-    <div className="p-6 bg-white min-h-screen">
+    <div className=" bg-white min-h-screen">
       <h1 className="text-3xl font-bold mb-8 text-center">Order Details</h1>
       <div className="space-y-8">
         <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">

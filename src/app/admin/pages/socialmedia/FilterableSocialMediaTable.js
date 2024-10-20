@@ -18,23 +18,23 @@ const FilterableSocialMediaTable = () => {
     pinterest: '',
   });
 
-  useEffect(() => {
-    const fetchSocialMediaLinks = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch('/api/socialmedia');
-        const data = await response.json();
-        if (data.status) {
-          setSocialMediaLinks(data.data);
-          setFilteredData(data.data); // Initialize filtered data
-        }
-      } catch (error) {
-        console.error('Error fetching social media links:', error);
-      } finally {
-        setIsLoading(false);
+  const fetchSocialMediaLinks = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/socialmedia');
+      const data = await response.json();
+      if (data.status) {
+        setSocialMediaLinks(data.data);
+        setFilteredData(data.data); // Initialize filtered data
       }
-    };
+    } catch (error) {
+      console.error('Error fetching social media links:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchSocialMediaLinks();
   }, []);
 
@@ -82,14 +82,13 @@ const FilterableSocialMediaTable = () => {
         tiktok: '',
         pinterest: '',
       });
-      // Fetch the updated data
-      fetchSocialMediaLinks(); 
+      // Reload the data after adding or updating
+      await fetchSocialMediaLinks(); 
     } catch (error) {
       console.error('Error adding or updating item:', error);
     }
     setIsLoading(false);
   };
-  
 
   const handleEditItem = (item) => {
     setNewSocialMedia(item);
@@ -102,8 +101,8 @@ const FilterableSocialMediaTable = () => {
       await fetch(`/api/socialmedia/${id}`, {
         method: 'DELETE',
       });
-      // Fetch the updated data
-      fetchSocialMediaLinks(); 
+      // Reload the data after deleting
+      await fetchSocialMediaLinks(); 
     } catch (error) {
       console.error('Error deleting item:', error);
     }
@@ -111,7 +110,7 @@ const FilterableSocialMediaTable = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className=" bg-gray-100 min-h-screen">
       {isLoading && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="text-white text-xl">Loading...</div>

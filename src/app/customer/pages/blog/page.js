@@ -38,7 +38,7 @@ export default function Blog() {
         <main className="container mx-auto px-4 py-4">
           <h1 className='text-4xl font-bold text-center '>Blog Page</h1>
           {blogs.length > 0 && (
-            <BlogCategorySlider category="ecommerece technology" blogs={blogs} />
+            <BlogCategorySlider category="Perfume" blogs={blogs} />
           )}
           <BlogPosts blogs={blogs.slice(0, visibleBlogs)} /> {/* Show only visible blogs */}
           {visibleBlogs < blogs.length && ( // Show "Show More" button only if there are more blogs to show
@@ -52,7 +52,7 @@ export default function Blog() {
             </div>
           )}
         </main>
-        <BlogSection blogs={blogs} title="Fashion" />
+        <BlogSection blogs={blogs} title="Perfume" />
         <Subscribe />
       </div>
 
@@ -89,7 +89,7 @@ function BlogPosts({ blogs }) {
                 dangerouslySetInnerHTML={{ __html: post.description }}
               >
               </div>
-              <Link href={`/pages/blog/${post.id}`} className="text-blue-600 hover:underline">
+              <Link href={`/customer/pages/blog/${post.id}`} className="text-blue-600 hover:underline">
                 Read more
               </Link>
             </div>

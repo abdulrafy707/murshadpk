@@ -36,7 +36,7 @@ const BlogSection = ({ blogs, title, category }) => {
 
   const handleBlogClick = (blog) => {
     // Navigate to the blog details page
-    router.push(`/pages/blog/${blog.id}`);
+    router.push(`/customer/pages/blog/${blog.id}`);
   };
 
   return (

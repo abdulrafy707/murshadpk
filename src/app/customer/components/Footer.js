@@ -14,25 +14,27 @@ const Footer = () => {
     pinterest: ''
   });
 
-  useEffect(() => {
-    const fetchSocialMediaLinks = async () => {
-      try {
-        const response = await fetch('/api/socialfirstrecodlink', { cache: 'no-store' });
-        const data = await response.json();
-        console.log('Fetched data:', data);
-  
-        if (data.status) {
-          setSocialMediaLinks(data.data);
-        } else {
-          console.error('Failed to fetch social media links');
-        }
-      } catch (error) {
-        console.error('Error fetching social media links:', error);
+  const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  const fetchSocialMediaLinks = async () => {
+    try {
+      const response = await fetch('/api/socialfirstrecodlink', { cache: 'no-store' });
+      const data = await response.json();
+      if (data.status) {
+        setSocialMediaLinks(data.data);
+      } else {
+        console.error('Failed to fetch social media links');
       }
-    };
-  
-    fetchSocialMediaLinks();
-  }, []);
+    } catch (error) {
+      console.error('Error fetching social media links:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchSocialMediaLinks();
+}, []);
+
   
   
 

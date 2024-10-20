@@ -49,7 +49,7 @@ export default function BlogCategorySlider({ category, blogs }) {
                   className="w-full flex-shrink-0"
                   style={{ flexBasis: '100%' }} // Ensures each slide takes full width
                 >
-                  <a href={`/pages/blog/${blog.id}`}>
+                  <a href={`/customer/pages/blog/${blog.id}`}>
                     <div className="relative w-full h-64 sm:h-80 lg:h-[700px]">
                       <img
                         src={`https://murshadpkdata.advanceaitool.com/uploads/${blog.image}`}

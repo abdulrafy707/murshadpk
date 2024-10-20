@@ -104,7 +104,7 @@ const FilterableTable = ({ settings = [], fetchSettings }) => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className=" bg-gray-100 min-h-screen">
       {isLoading && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="text-white text-xl">Loading...</div>
