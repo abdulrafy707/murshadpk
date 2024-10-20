@@ -25,6 +25,10 @@ const FilterableTable = ({ colors = [], fetchColors }) => {
   }, [filter, colors]);
 
   const handleAddNewColor = async () => {
+    // Generate color name using ntc.js
+    const ntcResult = ntc.name(newColorHex);
+    const generatedName = ntcResult[1]; // Get the closest color name from ntc.js
+  
     setIsLoading(true);
     try {
       const response = await fetch('/api/colors', {
@@ -32,14 +36,14 @@ const FilterableTable = ({ colors = [], fetchColors }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: newColorName, hex: newColorHex }),
+        body: JSON.stringify({ name: generatedName, hex: newColorHex }), // Use generatedName for the color name
       });
   
       if (response.ok) {
         fetchColors();
         setIsModalOpen(false);
-        setNewColorName('');
-        setNewColorHex('#000000');
+        setNewColorName(''); // Reset color name
+        setNewColorHex('#000000'); // Reset color hex
       } else {
         console.error('Failed to add color');
       }
@@ -53,7 +57,7 @@ const FilterableTable = ({ colors = [], fetchColors }) => {
     // Generate color name using ntc.js
     const ntcResult = ntc.name(newColorHex);
     const generatedName = ntcResult[1]; // Get the closest color name from ntc.js
-  
+
     setIsLoading(true);
     try {
       const response = await fetch('/api/colors', {
@@ -63,7 +67,7 @@ const FilterableTable = ({ colors = [], fetchColors }) => {
         },
         body: JSON.stringify({ id: editColorId, name: generatedName, hex: newColorHex }), // Use generatedName for name
       });
-  
+
       if (response.ok) {
         fetchColors(); // Refresh the colors list
         setIsModalOpen(false); // Close the modal
@@ -78,6 +82,7 @@ const FilterableTable = ({ colors = [], fetchColors }) => {
     }
     setIsLoading(false);
   };
+
   const handleDeleteColor = async (id) => {
     setIsLoading(true);
     try {
@@ -90,7 +95,7 @@ const FilterableTable = ({ colors = [], fetchColors }) => {
       });
 
       if (response.ok) {
-        fetchColors();
+        fetchColors(); // Refresh colors after deletion
       } else {
         console.error('Failed to delete color');
       }
@@ -153,30 +158,35 @@ const FilterableTable = ({ colors = [], fetchColors }) => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-  {Array.isArray(filteredData) && filteredData.length > 0 ? (
-    filteredData.map((item) => (
-      <tr key={item.id}>
-        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.id}</td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          {item.name} ({item.hex || 'N/A'}) {/* Display HEX value here */}
-        </td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-          <button
-            className="text-indigo-600 hover:text-indigo-900 mr-2"
-            onClick={() => handleModalOpen(item)}
-          >
-            Edit
-          </button>
-        </td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan="3" className="px-6 py-4 text-center text-gray-500">No data available</td>
-    </tr>
-  )}
-</tbody>
-
+              {Array.isArray(filteredData) && filteredData.length > 0 ? (
+                filteredData.map((item) => (
+                  <tr key={item.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.id}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {item.name} ({item.hex || 'N/A'}) {/* Display HEX value here */}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-4">
+                      <button
+                        className="text-indigo-600 hover:text-indigo-900"
+                        onClick={() => handleModalOpen(item)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="text-red-600 hover:text-red-900"
+                        onClick={() => handleDeleteColor(item.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className="px-6 py-4 text-center text-gray-500">No data available</td>
+                </tr>
+              )}
+            </tbody>
           </table>
         </div>
       </div>

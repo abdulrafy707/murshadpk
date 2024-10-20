@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { MagnifyingGlassIcon, PlusIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 const FilterableTable = ({ sizes = [], fetchSizes }) => {
   const [filter, setFilter] = useState('');
@@ -34,7 +34,7 @@ const FilterableTable = ({ sizes = [], fetchSizes }) => {
       });
 
       if (response.ok) {
-        fetchSizes();
+        fetchSizes(); // Refresh the sizes after adding/updating
         setIsModalOpen(false);
         setCurrentSize({ id: null, name: '' });
       } else {
@@ -50,6 +50,31 @@ const FilterableTable = ({ sizes = [], fetchSizes }) => {
     setCurrentSize(size);
     setIsModalOpen(true);
   };
+
+  const handleDeleteClick = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this size?')) return;
+  
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/sizes`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }), // Send the id in the request body
+      });
+  
+      if (response.ok) {
+        fetchSizes(); // Refresh the sizes after deleting
+      } else {
+        console.error('Failed to delete size');
+      }
+    } catch (error) {
+      console.error('Error deleting size:', error);
+    }
+    setIsLoading(false);
+  };
+  
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -105,12 +130,18 @@ const FilterableTable = ({ sizes = [], fetchSizes }) => {
                   <tr key={item.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 space-x-4">
                       <button
                         className="text-blue-600 hover:text-blue-900 focus:outline-none"
                         onClick={() => handleEditClick(item)}
                       >
                         Edit
+                      </button>
+                      <button
+                        className="text-red-600 hover:text-red-900 focus:outline-none"
+                        onClick={() => handleDeleteClick(item.id)}
+                      >
+                        Delete
                       </button>
                     </td>
                   </tr>

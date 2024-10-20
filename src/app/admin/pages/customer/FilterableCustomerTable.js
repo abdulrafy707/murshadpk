@@ -15,10 +15,10 @@ const FilterableCustomerTable = ({ customers, fetchCustomers }) => {
     password: '',
     phoneno: '',
     city: '',
-    role: 'CUSTOMER',
     image: null, // Image file
     imageUrl: '', // Image URL
   });
+  const [isAdminForm, setIsAdminForm] = useState(false); // New state to track if it's an admin form
   const [images, setImages] = useState([]);
   const fileInputRef = useRef(null);
 
@@ -62,6 +62,9 @@ const FilterableCustomerTable = ({ customers, fetchCustomers }) => {
         imageUrl,
       };
 
+      // Change the endpoint for admin form submission
+      const endpoint = isAdminForm ? '/api/users/admin-user' : `/api/users`;
+
       const response = newCustomer.id 
         ? await fetch(`/api/users/${newCustomer.id}`, {
             method: 'PUT',
@@ -70,7 +73,7 @@ const FilterableCustomerTable = ({ customers, fetchCustomers }) => {
             },
             body: JSON.stringify(customerToSubmit),
           })
-        : await fetch(`/api/users`, {
+        : await fetch(endpoint, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -88,7 +91,6 @@ const FilterableCustomerTable = ({ customers, fetchCustomers }) => {
           password: '',
           phoneno: '',
           city: '',
-          role: 'CUSTOMER',
           image: null,
           imageUrl: '',
         });
@@ -127,6 +129,7 @@ const FilterableCustomerTable = ({ customers, fetchCustomers }) => {
     setIsLoading(true);
     try {
       setNewCustomer(item);
+      setIsAdminForm(false); // Make sure it's not in admin mode when editing
       setIsModalOpen(true);
     } catch (error) {
       console.error('Error fetching customer data:', error);
@@ -179,7 +182,7 @@ const FilterableCustomerTable = ({ customers, fetchCustomers }) => {
       )}
       <div className="bg-white shadow rounded-lg w-full relative">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl pl-4 font-semibold text-gray-800">Customers List</h2>
+          <h2 className="text-xl pl-4 font-semibold pt-4 text-gray-800">Customers List</h2>
           <div className="flex space-x-2">
             <button
               className="text-gray-600 hover:text-gray-900 focus:outline-none"
@@ -197,10 +200,10 @@ const FilterableCustomerTable = ({ customers, fetchCustomers }) => {
                   password: '',
                   phoneno: '',
                   city: '',
-                  role: 'CUSTOMER',
                   image: null,
                   imageUrl: '',
                 });
+                setIsAdminForm(true); // Set to admin form mode
                 setImages([]);
                 setIsModalOpen(true);
               }}
@@ -221,66 +224,65 @@ const FilterableCustomerTable = ({ customers, fetchCustomers }) => {
           </div>
         )}
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone No</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">email varification</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Token</th> */}
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated At</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {Array.isArray(filteredData) && filteredData.map((item, index) => (
-                <tr key={item.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.phoneno}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.city}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.role}</td>
-                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.emailVerified}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.verificationToken}</td> */}
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(item.updatedAt).toLocaleString()}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    <button
-                      onClick={() => handleEditItem(item)}
-                      className="text-indigo-600 hover:text-indigo-900 transition duration-150 ease-in-out"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteItem(item.id)}
-                      className="text-red-600 hover:text-red-900 transition duration-150 ease-in-out"
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() => handleStatusChange(item.id, item.status === 1 ? 'deactivate' : 'activate')}
-                      className={`${
-                        item.status === 1 ? 'text-yellow-600 hover:text-yellow-900' : 'text-green-600 hover:text-green-900'
-                      } transition duration-150 ease-in-out`}
-                    >
-                      {item.status === 1 ? 'Deactivate' : 'Activate'}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+  <table className="min-w-full divide-y divide-gray-200 w-full">
+    <thead className="bg-gray-50">
+      <tr>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone No</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-36">Address</th> {/* Fix the width */}
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated At</th>
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+      </tr>
+    </thead>
+    <tbody className="bg-white divide-y divide-gray-200">
+      {Array.isArray(filteredData) && filteredData.map((item, index) => (
+        <tr key={item.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.id}</td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.name}</td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.email}</td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.phoneno}</td>
+          <td className="px-6 py-4 text-sm text-gray-500 w-36 break-words"> {/* Ensure wrapping */}
+            {item.city}
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.role}</td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(item.updatedAt).toLocaleString()}</td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+            <button
+              onClick={() => handleEditItem(item)}
+              className="text-indigo-600 hover:text-indigo-900 transition duration-150 ease-in-out"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => handleDeleteItem(item.id)}
+              className="text-red-600 hover:text-red-900 transition duration-150 ease-in-out"
+            >
+              Delete
+            </button>
+            <button
+              onClick={() => handleStatusChange(item.id, item.status === 1 ? 'deactivate' : 'activate')}
+              className={`${
+                item.status === 1 ? 'text-yellow-600 hover:text-yellow-900' : 'text-green-600 hover:text-green-900'
+              } transition duration-150 ease-in-out`}
+            >
+              {item.status === 1 ? 'Deactivate' : 'Activate'}
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 flex h-[90vh] overflow-y-auto items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="fixed inset-0 flex h-[99vh] overflow-y-auto items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-4 w-[700px] rounded shadow-lg">
-            <h2 className="text-xl mb-4">{newCustomer.id ? 'Edit Customer' : 'Add New Customer'}</h2>
+            <h2 className="text-xl mb-4">{newCustomer.id ? 'Edit Customer' : 'Add New Admin'}</h2>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">Name</label>
               <input
@@ -326,25 +328,19 @@ const FilterableCustomerTable = ({ customers, fetchCustomers }) => {
                 className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Role</label>
-              <select
-                value={newCustomer.role}
-                onChange={(e) => setNewCustomer({ ...newCustomer, role: e.target.value })}
-                className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="CUSTOMER">Customer</option>
-                <option value="ADMIN">Admin</option>
-              </select>
-            </div>
-            {/* <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Profile Image</label>
-              <input
-                type="file"
-                onChange={handleImageChange}
-                className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div> */}
+            {!isAdminForm && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">Role</label>
+                <select
+                  value={newCustomer.role}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, role: e.target.value })}
+                  className="mt-1 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="CUSTOMER">Customer</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+              </div>
+            )}
             <div className="flex justify-end space-x-2 mt-4">
               <button
                 onClick={() => setIsModalOpen(false)}

@@ -47,3 +47,20 @@ export async function PUT(request) {
     );
   }
 }
+
+
+export async function DELETE(request) {
+  try {
+    const { id } = await request.json(); // Assumes ID is passed in the request body
+    await prisma.size.delete({
+      where: { id: parseInt(id, 10) },
+    });
+    return NextResponse.json({ message: 'Size deleted successfully' }, { status: 200 });
+  } catch (error) {
+    console.error('Error deleting size:', error);
+    return NextResponse.json(
+      { message: 'Failed to delete size', error: error.message },
+      { status: 500 }
+    );
+  }
+}

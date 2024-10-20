@@ -205,7 +205,7 @@ const ProductPage = ({ productData }) => {
 
 
   return (
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4 pt-8">
       <ToastContainer />
       {isNavigating && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -548,7 +548,7 @@ const ProductPage = ({ productData }) => {
                     </div>
                   </div>
                   <h3
-                    className="text-sm font-normal text-gray-800 overflow-hidden hover:underline hover:text-blue-400 cursor-pointer"
+                    className=" pl-2 text-sm font-normal text-gray-800 overflow-hidden hover:underline hover:text-blue-400 cursor-pointer"
                     style={{
                       display: '-webkit-box',
                       WebkitBoxOrient: 'vertical',
