@@ -17,7 +17,7 @@ const Footer = () => {
   useEffect(() => {
     const fetchSocialMediaLinks = async () => {
       try {
-        const response = await fetch('/api/socialfirstrecodlink');
+        const response = await fetch('/api/socialfirstrecodlink', { cache: 'no-store' });
         const data = await response.json();
         console.log('Fetched data:', data);
   
@@ -33,6 +33,7 @@ const Footer = () => {
   
     fetchSocialMediaLinks();
   }, []);
+  
   
 
   return (
