@@ -11,7 +11,7 @@ const Terms = () => {
         <h1 className="text-4xl font-bold mb-8 text-center">Terms and Conditions</h1>
         <p className="text-sm text-gray-500 mb-4">Last Updated: [Date]</p>
         <p className="mb-4">
-          Welcome to murshadpk.com! These terms and conditions outline the rules and regulations for the use of murshadpk.com's website, located at <a href="http://www.murshadpk.com.com" className="text-blue-500 hover:underline">www.murshadpk.com.com</a> (the "Site").
+          Welcome to murshadpk.com! These terms and conditions outline the rules and regulations for the use of murshadpk.com's website, located at <a href="http://www.murshadpk.com" className="text-blue-500 hover:underline">www.murshadpk.com</a> (the "Site").
         </p>
         <p className="mb-8">
           By accessing this website, we assume you accept these terms and conditions. Do not continue to use murshadpk.com if you do not agree to take all of the terms and conditions stated on this page.
@@ -77,18 +77,16 @@ const Terms = () => {
 
         <h2 className="text-2xl font-semibold mb-4">11. Governing Law</h2>
         <p className="mb-8">
-          These terms and conditions are governed by and construed in accordance with the laws of [Your Country/State], and you irrevocably submit to the exclusive jurisdiction of the courts in that location.
+          These terms and conditions are governed by and construed in accordance with the laws of Pakistan, and you irrevocably submit to the exclusive jurisdiction of the courts in that location.
         </p>
 
         <h2 className="text-2xl font-semibold mb-4">12. Contact Us</h2>
         <p className="mb-4">
-          If you have any questions about these terms and conditions, please contact us at <a href="mailto:support@murshadpk.com.com" className="text-blue-500 hover:underline">support@murshadpk.com.com</a> or by mail at:
+          If you have any questions about these terms and conditions, please contact us at <a href="pkmushad236@gmail.com" className="text-blue-500 hover:underline">pkmushad236@gmail.com</a> or by mail at:
         </p>
         <address className="mb-8">
           murshadpk.com<br />
-          [Your Company Address]<br />
-          [City, State, Zip Code]<br />
-          [Country]
+          Near union council kandhanwala P/O Mandi Bahauddin , Tehsil and District Mandi Bahauddin, Punjab ,Pakistan
         </address>
       </div>
     </>

@@ -33,7 +33,7 @@ const FAQ = () => {
             <section className="mb-6 md:mb-8">
               <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4">Contact Us</h2>
               <p className="text-gray-600 leading-relaxed text-sm sm:text-base md:text-lg">
-                If you need further assistance, please don't hesitate to reach out to us. You can contact our customer support team via email at <a href="mailto:support@murshadpk.com.com" className="text-blue-500 hover:underline">support@murshadpk.com.com</a> or by phone at <a href="tel:+923128807795" className="text-blue-500 hover:underline">+92 312 8807795</a>. We're here to help!
+                If you need further assistance, please don't hesitate to reach out to us. You can contact our customer support team via email at <a href="pkmushad236@gmail.com" className="text-blue-500 hover:underline">pkmushad236@gmail.com</a> or by phone at <a href="tel:03356768338" className="text-blue-500 hover:underline">03356768338</a>. We're here to help!
               </p>
             </section>
           </div>

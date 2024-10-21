@@ -11,7 +11,7 @@ const ReturnPolicy = () => {
         <h1 className="text-4xl font-bold mb-8 text-center">Return and Exchange Policy</h1>
         <p className="text-sm text-gray-500 mb-4">Last Updated: 2-8-2024</p>
         <p className="mb-4">
-          At murshadpk.com, we strive to provide you with the best shopping experience possible. If you are not entirely satisfied with your purchase, we're here to help. This return and exchange policy explains the terms under which you can return or exchange items purchased from our website, <a href="http://www.murshadpk.com.ca" className="text-blue-500 hover:underline">www.murshadpk.com.ca</a>.
+          At murshadpk.com, we strive to provide you with the best shopping experience possible. If you are not entirely satisfied with your purchase, we're here to help. This return and exchange policy explains the terms under which you can return or exchange items purchased from our website, <a href="http://www.murshadpk.com" className="text-blue-500 hover:underline">www.murshadpk.com</a>.
         </p>
 
         <h2 className="text-2xl font-semibold mb-4">1. Returns</h2>
@@ -32,7 +32,7 @@ const ReturnPolicy = () => {
 
         <h3 className="text-xl font-semibold mb-2">Return Process:</h3>
         <ol className="list-decimal list-inside mb-8">
-          <li className="mb-2">To initiate a return, please contact our customer support team at <a href="mailto:returns@murshadpk.com.ca" className="text-blue-500 hover:underline">returns@murshadpk.com.ca</a> with your order number and the reason for the return.</li>
+          <li className="mb-2">To initiate a return, please contact our customer support team at <a href="pkmurshad236@gmail.com" className="text-blue-500 hover:underline">pkmurshad236@gmail.com</a> with your order number and the reason for the return.</li>
           <li className="mb-2">Once your return is approved, we will provide you with a return shipping address and instructions.</li>
           <li className="mb-2">Pack the item securely in its original packaging, including all tags, instructions, and any accessories that came with the item.</li>
           <li className="mb-2">Ship the item to the provided address.</li>
@@ -72,17 +72,16 @@ const ReturnPolicy = () => {
 
         <h2 className="text-2xl font-semibold mb-4">3. Contact Us</h2>
         <p className="mb-4">
-          If you have any questions about our return and exchange policy, please contact us at <a href="mailto:support@murshadpk.com.ca" className="text-blue-500 hover:underline">support@murshadpk.com.ca</a> or by mail at:
+          If you have any questions about our return and exchange policy, please contact us at <a href="pkmurshad236@gmail.com" className="text-blue-500 hover:underline">pkmurshad236@gmail.com</a> or by mail at:
         </p>
         <address className="mb-8">
           murshadpk.com<br />
-          Tahir Sajjad<br />
-          15C 12street, Garden Town<br />
-          Gojra, Punjab, Pakistan<br />
-          56000<br />
+          Munawar Hussain Gujjar<br />
+          Near union council kandhanwala P/O Mandi Bahauddin , Tehsil and District Mandi Bahauddin, Punjab ,Pakistan<br></br>
+          50400<br />
           PAKISTAN<br />
-          0092-3310356111<br />
-          <a href="mailto:info@murshadpk.com.ca" className="text-blue-500 hover:underline">info@murshadpk.com.ca</a>
+          03356768338<br />
+          <a href="pkmushad236@gmail.com" className="text-blue-500 hover:underline">pkmushad236@gmail.com</a>
         </address>
       </div>
     </>
