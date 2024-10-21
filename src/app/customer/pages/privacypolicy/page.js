@@ -11,7 +11,7 @@ const PrivacyPolicy = () => {
         <h1 className="text-4xl font-bold mb-8 text-center">Privacy Policy</h1>
         <p className="text-sm text-gray-500 mb-4">Last Updated: 2-8-2024</p>
         <p className="mb-4">
-          Welcome to murshadpk.com! Your privacy is critically important to us. This privacy policy explains how we collect, use, disclose, and protect your personal information when you visit or make a purchase from <a href="http://www.murshadpk.com.ca" className="text-blue-500 hover:underline">www.murshadpk.com.ca</a>.
+          Welcome to murshadpk.com! Your privacy is critically important to us. This privacy policy explains how we collect, use, disclose, and protect your personal information when you visit or make a purchase from <a href="http://www.murshadpk.com" className="text-blue-500 hover:underline">www.murshadpk.com</a>.
         </p>
 
         <h2 className="text-2xl font-semibold mb-4">1. Information We Collect</h2>
@@ -71,17 +71,16 @@ const PrivacyPolicy = () => {
 
         <h2 className="text-2xl font-semibold mb-4">7. Contact Us</h2>
         <p className="mb-4">
-          For more information about our privacy practices, if you have questions, or if you would like to make a complaint, please contact us by email at <a href="mailto:info@murshadpk.com.ca" className="text-blue-500 hover:underline">info@murshadpk.com.ca</a> or by mail using the details provided below:
+          For more information about our privacy practices, if you have questions, or if you would like to make a complaint, please contact us by email at <a href="mailto:info@murshadpk.com" className="text-blue-500 hover:underline">pkmurshad236@gmail.com</a> or by mail using the details provided below:
         </p>
         <address className="mb-8">
           murshadpk.com<br />
-          Tahir Sajjad<br />
-          15C 12street, Garden Town<br />
-          Gojra, Punjab, Pakistan<br />
-          56000<br />
+          Munawar Hussain Gujjar<br />
+          Near union council kandhanwala P/O Mandi Bahauddin , Tehsil and District Mandi Bahauddin, Punjab ,Pakistan<br />
+          50400<br />
           PAKISTAN<br />
-          0092-3310356111<br />
-          <a href="mailto:info@murshadpk.com.ca" className="text-blue-500 hover:underline">info@murshadpk.com.ca</a>
+          03356768338<br />
+          <a href="pkmurshad236@gmail.com" className="text-blue-500 hover:underline">pkmurshad236@gmail.com</a>
         </address>
 
         <p className="mb-4">

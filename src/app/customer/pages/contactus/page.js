@@ -63,9 +63,9 @@ const Contact = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">Contact Information</h2>
               <p className="text-gray-600 leading-relaxed mb-4">
-                <strong>Email:</strong> <a href="mailto:support@murshadpk.com.com" className="text-blue-500 hover:underline">munawar.vu@gmail.com</a><br />
-                <strong>Phone:</strong> <a href="tel:+923128807795" className="text-blue-500 hover:underline">03356768338</a><br />
-                <strong>Address:</strong> Near union council kandhanwala  P/O Mandi Bahauddin , Tehsil and Distr, -, -, Pakistan
+                <strong>Email:</strong> <a href="pkmushad236@gmail.com" className="text-blue-500 hover:underline">pkmushad236@gmail.com</a><br />
+                <strong>Phone:</strong> <a href="tel:03356768338" className="text-blue-500 hover:underline">03356768338</a><br />
+                <strong>Address:</strong> Near union council kandhanwala P/O Mandi Bahauddin , Tehsil and District Mandi Bahauddin, Punjab ,Pakistan
               </p>
             </section>
             <section>
