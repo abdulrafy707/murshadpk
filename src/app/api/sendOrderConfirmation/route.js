@@ -5,6 +5,8 @@ import prisma from '@/app/util/prisma';
 export async function POST(request) {
   try {
     const { email, name, orderId } = await request.json();
+    console.log('Received data:', { email, name, orderId });
+
 
     // Fetch order details by orderId, including related data
     const order = await prisma.order.findUnique({
@@ -17,6 +19,7 @@ export async function POST(request) {
         },
       },
     });
+    console.log('Fetched order:', order);
 
     if (!order) {
       throw new Error('Order not found');
